@@ -66,7 +66,7 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	businessMapping, err := client.BusinessMappings.BusinessMapping(index)
+	businessMapping, err := client.BusinessMappings.GetBusinessMapping(index)
 	if err != nil {
 		return err
 	}

@@ -16,4 +16,4 @@ Setup go modules
 go mod init github.com/skyscrapr/terraform-provider-cloudability
 
 
-
+go build -o ~/.terraform.d/plugins/terraform-provider-cloudability

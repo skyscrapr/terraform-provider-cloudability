@@ -10,7 +10,6 @@ func resourceAWSCredential() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAWSCredentialCreate,
 		Read: resourceAWSCredentialRead,
-		Update: resourceAWSCredentialUpdate,
 		Delete: resourceAWSCredentialDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -96,7 +95,21 @@ func resourceAWSCredential() *schema.Resource {
 }
 
 func resourceAWSCredentialCreate(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
+	// Recipe - https://developers.cloudability.com/docs/vendor-credentials-end-point#section-recipe-for-adding-new-linked-account-credentials-aws
+	// - Run verification on the master payer account (to ensure the account is in the list) Need to check if this blocks?
+	// - Create the credential for the linked account
+	// - Get the credential with the authorization and return it
+	vendor := d.Get("vendor_key").(string)
+	accountId := d.Get("vendor_account_id").(string)
+	parentAccountId := d.Get("parent_account_id").(string)
+
+	client := meta.(*cloudability.CloudabilityClient)	
+	client.Vendors.VerifyAccountCredentials(vendor, parentAccountId)
+	_, err := client.Vendors.NewCredential(vendor, accountId, "aws_role")
+	if err != nil {
+		return err
+	}
+	// probably need to loop until credential authorization is populated with timeout. I doubt it's done immediately
 	return resourceAWSCredentialRead(d, meta)
 }
 
@@ -106,7 +119,7 @@ func resourceAWSCredentialRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	credential, err := client.Vendors.Credential("aws", id)
+	credential, err := client.Vendors.GetCredential("aws", id)
 	if err != nil {
 		return err
 	}
@@ -126,15 +139,13 @@ func resourceAWSCredentialRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	return nil
 }
- 
-func resourceAWSCredentialUpdate(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
-	return resourceAWSCredentialRead(d, meta)
-}
 
 func resourceAWSCredentialDelete(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
-	return nil
+	client := meta.(*cloudability.CloudabilityClient)
+	id := d.Id()
+	vendor := d.Get("vendor_key").(string)
+	err := client.Vendors.DeleteCredential(vendor, id)
+	return err
 }
 
 func flattenVerification(in cloudability.Verification) []map[string]interface{} {

@@ -77,7 +77,7 @@ func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	view, err := client.Views.View(id)
+	view, err := client.Views.GetView(id)
 	if err != nil {
 		return err
 	}

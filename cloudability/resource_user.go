@@ -65,7 +65,7 @@ func resourceUserRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	user, err := client.Users.User(id)
+	user, err := client.Users.GetUser(id)
 	if err != nil {
 		return err
 	}
