@@ -99,13 +99,13 @@ func resourceAWSCredentialCreate(d *schema.ResourceData, meta interface{}) error
 	// - Run verification on the master payer account (to ensure the account is in the list) Need to check if this blocks?
 	// - Create the credential for the linked account
 	// - Get the credential with the authorization and return it
-	vendor := d.Get("vendor_key").(string)
+	vendorKey := d.Get("vendor_key").(string)
 	accountId := d.Get("vendor_account_id").(string)
 	parentAccountId := d.Get("parent_account_id").(string)
 
 	client := meta.(*cloudability.CloudabilityClient)	
-	client.Vendors.VerifyAccountCredentials(vendor, parentAccountId)
-	_, err := client.Vendors.NewCredential(vendor, accountId, "aws_role")
+	client.Vendors.VerifyCredential(vendorKey, parentAccountId)
+	_, err := client.Vendors.NewCredential(vendorKey, accountId, "aws_role")
 	if err != nil {
 		return err
 	}

@@ -56,7 +56,14 @@ func resourceBusinessMapping() *schema.Resource {
 }
 
 func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
+	client := meta.(*cloudability.CloudabilityClient)	
+
+	businessMapping := &cloudability.BusinessMapping{
+		Name: d.Get("name").(string),
+		DefaultValue: d.Get("default_value").(string),
+		
+	}
+	client.BusinessMappings.NewBusinessMapping(businessMapping)
 	return resourceBusinessMappingRead(d, meta)
 }
 
