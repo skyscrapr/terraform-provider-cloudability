@@ -55,7 +55,21 @@ func resourceUser() *schema.Resource {
 }
 
 func resourceUserCreate(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
+	client := meta.(*cloudability.CloudabilityClient)	
+
+	user := &cloudability.User{
+		Email: d.Get("email").(string),
+		FullName: d.Get("full_name").(string),
+		Role: d.Get("role").(string),
+		Restricted: d.Get("restricted").(bool),
+		// TODO: Fix this
+		// SharedDimensionFilterSetIds: d.Get("shared_dimension_filter_set_ids"),
+		DefaultDimensionFilterId: d.Get("default_dimension_filter_set_id").(int),
+	}
+	err := client.Users.NewUser(user)
+	if err != nil {
+		return err
+	}
 	return resourceUserRead(d, meta)
 }
 
@@ -86,11 +100,34 @@ func resourceUserRead(d *schema.ResourceData, meta interface{}) error {
 }
  
 func resourceUserUpdate(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
+	client := meta.(*cloudability.CloudabilityClient)
+	id, err := strconv.Atoi(d.Id())
+	if err != nil {
+		return nil
+	}
+	user := &cloudability.User{
+		Id: id,
+		Email: d.Get("email").(string),
+		FullName: d.Get("full_name").(string),
+		Role: d.Get("role").(string),
+		Restricted: d.Get("restricted").(bool),
+		// TODO: Fix this
+		// SharedDimensionFilterSetIds: d.Get("shared_dimension_filter_set_ids"),
+		DefaultDimensionFilterId: d.Get("default_dimension_filter_set_id").(int),
+	}
+	err = client.Users.UpdateUser(user)
+	if err != nil {
+		return err
+	}
 	return resourceUserRead(d, meta)
 }
 
 func resourceUserDelete(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
-	return nil
+	client := meta.(*cloudability.CloudabilityClient)
+	id, err := strconv.Atoi(d.Id())
+	if err != nil {
+		return nil
+	}
+	err = client.Users.DeleteUser(id)
+	return err
 }

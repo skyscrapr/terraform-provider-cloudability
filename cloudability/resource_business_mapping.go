@@ -10,7 +10,7 @@ func resourceBusinessMapping() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBusinessMappingCreate,
 		Read: resourceBusinessMappingRead,
-		Update: resourceBusinessMappingUpdate,
+		// Update: resourceBusinessMappingUpdate,
 		Delete: resourceBusinessMappingDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -30,6 +30,11 @@ func resourceBusinessMapping() *schema.Resource {
 				Type: schema.TypeString,
 				Required: true,
 				ForceNew: false,
+			},
+			"default_value": {
+				Type: schema.TypeString,
+				Optional: true,
+				Default: "",
 			},
 			"statement": {
 				Type: schema.TypeSet,
@@ -61,7 +66,7 @@ func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) err
 	businessMapping := &cloudability.BusinessMapping{
 		Name: d.Get("name").(string),
 		DefaultValue: d.Get("default_value").(string),
-		
+
 	}
 	client.BusinessMappings.NewBusinessMapping(businessMapping)
 	return resourceBusinessMappingRead(d, meta)
@@ -82,6 +87,7 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("index", businessMapping.Index)
 		d.Set("kind", businessMapping.Kind)
 		d.Set("name", businessMapping.Name)
+		d.Set("default_value", businessMapping.DefaultValue)
 		d.Set("statement", flattenStatements(businessMapping.Statements))
 		d.Set("updated_at", businessMapping.UpdatedAt)
 		d.SetId(strconv.Itoa(businessMapping.Index))
@@ -91,15 +97,35 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 	}
 	return nil
 }
- 
+
+
 func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
+	client := meta.(*cloudability.CloudabilityClient)
+	id, err := strconv.Atoi(d.Id())
+	if err != nil {
+		return nil
+	}
+	businessMapping := &cloudability.BusinessMapping{
+		Index: id,
+		Kind: d.Get("kind").(string),
+		Name: d.Get("name").(string),
+		DefaultValue: d.Get("default_value").(string),
+		// Statements:
+	}
+	err = client.BusinessMappings.UpdateBusinessMapping(businessMapping)
+	if err != nil {
+		return err
+	}
 	return resourceBusinessMappingRead(d, meta)
 }
 
 func resourceBusinessMappingDelete(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
-	return nil
+	client := meta.(*cloudability.CloudabilityClient)
+	id, err := strconv.Atoi(d.Id())
+	if err != nil {
+		return nil
+	}
+	return client.BusinessMappings.DeleteBusinessMapping(id)
 }
 
 func flattenStatements(in []cloudability.BusinessMappingStatement) []map[string]interface{} {
