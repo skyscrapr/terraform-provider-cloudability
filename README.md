@@ -4,8 +4,16 @@
 
 - [Terraform](https://www.terraform.io/downloads.html) 0.12+
 - [Go](https://golang.org/doc/install) 1.13 (to build the provider plugin)
+- [cloudability-sdk-go](https://github.com/skyscrapr/cloudability-sdk-go) 
 
-Setup Notes for Mac
+## Samples
+
+- [terraform-cloudability](https://github.com/skyscrapr/terraform-cloudability
+
+
+## Development
+
+### Setup Notes for Mac
 
 Git Setup
 Install xcode
@@ -21,6 +29,7 @@ Setup provider boilerplate from terraform docs. This will create main.go and pro
 Setup go modules
 go mod init github.com/skyscrapr/terraform-provider-cloudability
 
-## Installing for testing
+
+### Building & Installing provider for testing
 
 go build -o ~/.terraform.d/plugins/terraform-provider-cloudability
