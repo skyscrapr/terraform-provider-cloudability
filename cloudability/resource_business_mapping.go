@@ -10,7 +10,7 @@ func resourceBusinessMapping() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBusinessMappingCreate,
 		Read: resourceBusinessMappingRead,
-		// Update: resourceBusinessMappingUpdate,
+		Update: resourceBusinessMappingUpdate,
 		Delete: resourceBusinessMappingDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,

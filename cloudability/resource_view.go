@@ -10,7 +10,7 @@ func resourceView() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceViewCreate,
 		Read: resourceViewRead,
-		// Update: resourceViewUpdate,
+		Update: resourceViewUpdate,
 		Delete: resourceViewDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
