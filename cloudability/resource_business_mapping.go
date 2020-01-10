@@ -91,9 +91,6 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("statement", flattenStatements(businessMapping.Statements))
 		d.Set("updated_at", businessMapping.UpdatedAt)
 		d.SetId(strconv.Itoa(businessMapping.Index))
-	} else {
-		// BusinessMapping not found. Remove from state
-		d.SetId("")
 	}
 	return nil
 }
@@ -110,7 +107,7 @@ func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) err
 		Kind: d.Get("kind").(string),
 		Name: d.Get("name").(string),
 		DefaultValue: d.Get("default_value").(string),
-		// Statements:
+		// TODO: Statements:
 	}
 	err = client.BusinessMappings.UpdateBusinessMapping(businessMapping)
 	if err != nil {
@@ -126,15 +123,4 @@ func resourceBusinessMappingDelete(d *schema.ResourceData, meta interface{}) err
 		return nil
 	}
 	return client.BusinessMappings.DeleteBusinessMapping(id)
-}
-
-func flattenStatements(in []cloudability.BusinessMappingStatement) []map[string]interface{} {
-	var out = make([]map[string]interface{}, len(in), len(in))
-	for i, v := range in {
-		m := make(map[string]interface{})
-		m["match_expression"] = v.MatchExpression
-		m["value_expression"] = v.ValueExpression
-		out[i] = m
-	}
-	return out
 }

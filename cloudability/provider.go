@@ -13,12 +13,15 @@ func Provider() *schema.Provider {
                                 Description: "The apikey for API operations",
                                 DefaultFunc: schema.EnvDefaultFunc("APIKEY", nil),
                         },
+                },
+                DataSourcesMap: map[string]*schema.Resource{
+                        "cloudability_account_verification": dataSourceAccount(),
                 },              
                 ResourcesMap: map[string]*schema.Resource{
-                        // "cloudability_aws_credential": resourceAWSCredential(),
+                        "cloudability_account": resourceAccount(),
                         "cloudability_business_mapping": resourceBusinessMapping(),
                         "cloudability_user": resourceUser(),
-                        // "cloudability_view": resourceView(),
+                        "cloudability_view": resourceView(),
                 },
                 ConfigureFunc: providerConfigure,
         }

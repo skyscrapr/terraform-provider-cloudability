@@ -124,15 +124,3 @@ func resourceViewDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	return client.Views.DeleteView(id)
 }
-
-func flattenFilters(in []cloudability.ViewFilter) []map[string]interface{} {
-	var out = make([]map[string]interface{}, len(in), len(in))
-	for i, v := range in {
-		m := make(map[string]interface{})
-		m["field"] = v.Field
-		m["comparator"] = v.Comparator
-		m["value"] = v.Value
-		out[i] = m
-	}
-	return out
-}

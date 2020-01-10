@@ -92,9 +92,6 @@ func resourceUserRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("shared_dimension_filter_set_ids", user.SharedDimensionFilterSetIds)
 		d.Set("default_dimension_filter_set_id", user.DefaultDimensionFilterId)
 		d.SetId(strconv.Itoa(user.Id))
-	} else {
-		// User not found. Remove from state
-		d.SetId("")
 	}
 	return nil
 }
