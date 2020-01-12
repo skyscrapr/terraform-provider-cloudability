@@ -16,7 +16,7 @@ func NewConfig(d *schema.ResourceData) (*Config) {
 	return c
 }
 
-func (c *Config) Client() (*cloudability.CloudabilityClient) {
-	client := cloudability.NewCloudabilityClient(c.ApiKey)
+func (c *Config) Client() (*cloudability.Client) {
+	client := cloudability.NewClient(c.ApiKey)
 	return client
 }

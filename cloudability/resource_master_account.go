@@ -6,11 +6,12 @@ import (
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
 
-func resourceAccount() *schema.Resource {
+
+func resourceMasterAccount() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAccountCreate,
-		Read: resourceAccountRead,
-		Delete: resourceAccountDelete,
+		Create: resourceMasterAccountCreate,
+		Read: resourceMasterAccountRead,
+		Delete: resourceMasterAccountDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -83,6 +84,13 @@ func resourceAccount() *schema.Resource {
 				},
 				Description: "Object contain vendor specific authorization details",
 			},
+			"type": &schema.Schema {
+				Type: schema.TypeString,
+				Optional: true,
+				Default: "aws_role",
+				ForceNew: true,
+				Description: "'aws_role' or 'aws_user'",
+			},
 			"external_id": &schema.Schema {
 				Type: schema.TypeString,
 				Computed: true,
@@ -98,34 +106,62 @@ func resourceAccount() *schema.Resource {
 				Computed: true,
 				Description: "Date timestamp corresponding to cloudability credential creation time",
 			},
+			"bucket_name": {
+				Type: schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: "Name of s3 bucket containing cost usage reports",
+			},
+			"report_name": {
+				Type: schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: "Name of cost and usage report",
+			},
+			"report_prefix": {
+				Type: schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: "Cost and usage report prefix",
+			},
 		},
 	}
 }
 
-func resourceAccountCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceMasterAccountCreate(d *schema.ResourceData, meta interface{}) error {
 	vendorKey := d.Get("vendor_key").(string)
 	accountId := d.Get("vendor_account_id").(string)
+	credType := d.Get("type").(string)
+	bucketName := d.Get("bucket_name").(string)
+	reportName := d.Get("report_name").(string)
+	reportPrefix := d.Get("report_prefix").(string)
 	
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	log.Printf("[DEBUG] resourceAccountCreate NewAccount [account_id: %q]", accountId)
-	// TODO: Need to work out how to dynamically get the type
-	// authorizationType := d.Get("authorization").(map[string]string)["type"]
-
-	// TODO: Need to handle errors better. Ignoring for now.
-	client.Vendors.NewAccount(vendorKey, accountId, "aws_role")
-	// _, err := client.Vendors.NewAccount(vendorKey, accountId, "aws_role")
-	// if err != nil {
-	// 	return err
-	// }
-	return resourceAccountRead(d, meta)
+	params := &cloudability.NewMasterAccountParams{
+		NewLinkedAccountParams: &cloudability.NewLinkedAccountParams{
+			VendorAccountId: accountId,
+			Type: credType,
+		},
+		BucketName: bucketName,
+		CostAndUsageReport: &cloudability.CostAndUsageReport{
+			Name: &reportName,
+			Prefix: &reportPrefix,
+		},
+	}
+	_, err := client.Vendors().NewMasterAccount(vendorKey, params)
+	if err != nil {
+		return err
+	}
+	return resourceMasterAccountRead(d, meta)
 }
 
-func resourceAccountRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*cloudability.Client)
 
 	vendorKey := d.Get("vendor_key").(string)
 	accountId := d.Get("vendor_account_id").(string)
-	account, err := client.Vendors.GetAccount(vendorKey, accountId)
+	account, err := client.Vendors().GetAccount(vendorKey, accountId)
 	if err != nil {
 		return err
 	}
@@ -139,15 +175,18 @@ func resourceAccountRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("external_id", account.Authorization.ExternalId)
 		d.Set("parent_account_id", account.ParentAccountId)
 		d.Set("created_at", account.CreatedAt)
+		d.Set("bucket_name", account.Authorization.BucketName)
+		d.Set("report_name", account.Authorization.CostAndUsageReport.Name)
+		d.Set("report_prefix", account.Authorization.CostAndUsageReport.Prefix)
 		d.SetId(account.Id)
 	}
 	return nil
 }
 
-func resourceAccountDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient) 
+func resourceMasterAccountDelete(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*cloudability.Client) 
 	vendorKey := d.Get("vendor_key").(string)
 	accountId := d.Get("vendor_account_id").(string)
-	err := client.Vendors.DeleteAccount(vendorKey, accountId)
+	err := client.Vendors().DeleteAccount(vendorKey, accountId)
 	return err
 }

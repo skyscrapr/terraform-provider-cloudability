@@ -8,9 +8,9 @@ import (
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
 
-func dataSourceAccount() *schema.Resource {
+func dataSourceAccountVerification() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAccountRead,
+		Read: dataSourceAccountVerificationRead,
 		Schema: map[string]*schema.Schema{
 			"vendor_account_id": {
 				Type: schema.TypeString,
@@ -63,17 +63,17 @@ func dataSourceAccount() *schema.Resource {
 	}
 }
 
-func dataSourceAccountRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAccountVerificationRead(d *schema.ResourceData, meta interface{}) error {
 	vendorKey := d.Get("vendor_key").(string)
 	accountId := d.Get("vendor_account_id").(string)
 	retryCount := d.Get("retry_count").(int)
 	retryWait := d.Get("retry_wait").(int)
 	
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	var account *cloudability.Account
-	log.Printf("[DEBUG] resourceAccountVerificationCreate NewVerification [account_id: %q]", accountId)
+	log.Printf("[DEBUG] resourceAccountVerificationRead [account_id: %q]", accountId)
     err := retry(retryCount, time.Duration(retryWait)*time.Second, func() (err error, exit bool) {
-		account, err = client.Vendors.VerifyAccount(vendorKey, accountId)
+		account, err = client.Vendors().VerifyAccount(vendorKey, accountId)
 		if err != nil {
 			log.Printf("[DEBUG] VerifyAccount failed (%s)", err)
 			return err, false

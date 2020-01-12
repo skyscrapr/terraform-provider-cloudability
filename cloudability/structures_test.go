@@ -64,16 +64,16 @@ func TestFlattenAuthorization(t *testing.T) {
 
 func TestFlattenStatements(t *testing.T) {
 	cases := []struct {
-		statement []cloudability.BusinessMappingStatement
+		statements []*cloudability.BusinessMappingStatement
 		expected []map[string]interface{}
 	}{
 		{
-			statement: []cloudability.BusinessMappingStatement{
-				cloudability.BusinessMappingStatement{
+			statements: []*cloudability.BusinessMappingStatement{
+				&cloudability.BusinessMappingStatement{
 					MatchExpression: "test-match_expression_1",
 					ValueExpression: "test-value_expression_1",
 				},
-				cloudability.BusinessMappingStatement{
+				&cloudability.BusinessMappingStatement{
 					MatchExpression: "test-match_expression_2",
 					ValueExpression: "test-value_expression_2",
 				},
@@ -91,7 +91,7 @@ func TestFlattenStatements(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		out := flattenStatements(c.statement)
+		out := flattenStatements(c.statements)
 		if !reflect.DeepEqual(out, c.expected) {
 			t.Fatalf("Error matching output and expected: %#v vs %#v", out, c.expected)
 		}

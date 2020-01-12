@@ -2,6 +2,7 @@ package cloudability
 
 import (
 	"strconv"
+	"log"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
@@ -18,8 +19,7 @@ func resourceBusinessMapping() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"index": {
 				Type: schema.TypeInt,
-				ForceNew: true,
-				Optional: true,
+				Computed: true,
 			},
 			"kind": {
 				Type: schema.TypeString,
@@ -37,7 +37,7 @@ func resourceBusinessMapping() *schema.Resource {
 				Default: "",
 			},
 			"statement": {
-				Type: schema.TypeSet,
+				Type: schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -61,24 +61,44 @@ func resourceBusinessMapping() *schema.Resource {
 }
 
 func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)	
+	client := meta.(*cloudability.Client)	
 
+	statement := d.Get("statement")
+	statements := statement.([]interface{})
+	businessMappingStatements := make([]*cloudability.BusinessMappingStatement, len(statements))
+	for i, s := range(statements) {
+		// Prevent panic on nil dead_letter_config. See GH-14961
+		// if dlcMaps[0] == nil {
+		// 	return fmt.Errorf("Nil dead_letter_config supplied for function: %s", functionName)
+		// }
+		m := s.(map[string]interface{})
+		businessMappingStatements[i] = &cloudability.BusinessMappingStatement{
+			MatchExpression: m["match_expression"].(string),
+			ValueExpression: m["value_expression"].(string),
+		}
+	}
 	businessMapping := &cloudability.BusinessMapping{
 		Name: d.Get("name").(string),
+		Kind: d.Get("kind").(string),
 		DefaultValue: d.Get("default_value").(string),
-
+		Statements: businessMappingStatements,
 	}
-	client.BusinessMappings.NewBusinessMapping(businessMapping)
+	newBusinessMapping, err := client.BusinessMappings().NewBusinessMapping(businessMapping)
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] New business mapping created with index: %d", newBusinessMapping.Index)
+	d.SetId(strconv.Itoa(newBusinessMapping.Index))
 	return resourceBusinessMappingRead(d, meta)
 }
 
 func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	index, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return err
 	}
-	businessMapping, err := client.BusinessMappings.GetBusinessMapping(index)
+	businessMapping, err := client.BusinessMappings().GetBusinessMapping(index)
 	if err != nil {
 		return err
 	}
@@ -97,7 +117,7 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 
 
 func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return nil
@@ -109,7 +129,7 @@ func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) err
 		DefaultValue: d.Get("default_value").(string),
 		// TODO: Statements:
 	}
-	err = client.BusinessMappings.UpdateBusinessMapping(businessMapping)
+	err = client.BusinessMappings().UpdateBusinessMapping(businessMapping)
 	if err != nil {
 		return err
 	}
@@ -117,10 +137,10 @@ func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceBusinessMappingDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return nil
 	}
-	return client.BusinessMappings.DeleteBusinessMapping(id)
+	return client.BusinessMappings().DeleteBusinessMapping(id)
 }

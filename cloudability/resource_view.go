@@ -72,12 +72,12 @@ func resourceViewCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return err
 	}
-	view, err := client.Views.GetView(id)
+	view, err := client.Views().GetView(id)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 }
  
 func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return nil
@@ -109,7 +109,7 @@ func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),
 		// Filters: d.Get("filters")
 	}
-	err = client.Views.UpdateView(view)
+	err = client.Views().UpdateView(view)
 	if err != nil {
 		return err
 	}
@@ -117,10 +117,10 @@ func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceViewDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return nil
 	}
-	return client.Views.DeleteView(id)
+	return client.Views().DeleteView(id)
 }

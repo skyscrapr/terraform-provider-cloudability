@@ -24,12 +24,24 @@ func flattenAuthorization(in cloudability.Authorization) []map[string]interface{
 	return out
 }
 
-func flattenStatements(in []cloudability.BusinessMappingStatement) []map[string]interface{} {
+func flattenStatements(in []*cloudability.BusinessMappingStatement) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
 		m["match_expression"] = v.MatchExpression
 		m["value_expression"] = v.ValueExpression
+		out[i] = m
+	}
+	return out
+}
+
+func inflateStatements(in []map[string]interface{}) []cloudability.BusinessMappingStatement {
+	var out = make([]cloudability.BusinessMappingStatement, len(in))
+	for i, v := range in {
+		m := cloudability.BusinessMappingStatement{
+			MatchExpression: v["match_expression"].(string),
+			ValueExpression: v["value_expression"].(string),
+		}
 		out[i] = m
 	}
 	return out

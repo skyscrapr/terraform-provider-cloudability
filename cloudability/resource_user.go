@@ -55,7 +55,7 @@ func resourceUser() *schema.Resource {
 }
 
 func resourceUserCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)	
+	client := meta.(*cloudability.Client)	
 
 	user := &cloudability.User{
 		Email: d.Get("email").(string),
@@ -66,7 +66,7 @@ func resourceUserCreate(d *schema.ResourceData, meta interface{}) error {
 		// SharedDimensionFilterSetIds: d.Get("shared_dimension_filter_set_ids"),
 		DefaultDimensionFilterId: d.Get("default_dimension_filter_set_id").(int),
 	}
-	err := client.Users.NewUser(user)
+	err := client.Users().NewUser(user)
 	if err != nil {
 		return err
 	}
@@ -74,12 +74,12 @@ func resourceUserCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceUserRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return err
 	}
-	user, err := client.Users.GetUser(id)
+	user, err := client.Users().GetUser(id)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func resourceUserRead(d *schema.ResourceData, meta interface{}) error {
 }
  
 func resourceUserUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return nil
@@ -112,7 +112,7 @@ func resourceUserUpdate(d *schema.ResourceData, meta interface{}) error {
 		// SharedDimensionFilterSetIds: d.Get("shared_dimension_filter_set_ids"),
 		DefaultDimensionFilterId: d.Get("default_dimension_filter_set_id").(int),
 	}
-	err = client.Users.UpdateUser(user)
+	err = client.Users().UpdateUser(user)
 	if err != nil {
 		return err
 	}
@@ -120,11 +120,11 @@ func resourceUserUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceUserDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.CloudabilityClient)
+	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return nil
 	}
-	err = client.Users.DeleteUser(id)
+	err = client.Users().DeleteUser(id)
 	return err
 }

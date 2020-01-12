@@ -5,44 +5,50 @@ import (
 	"testing"
 )
 
-func TestResourceAccountRead(t *testing.T) {
+func TestResourceLinkedAccountRead(t *testing.T) {
 	apikey := os.Getenv("CLOUDABILITY_APIKEY")
 	config := Config{
 		ApiKey: apikey,
 	}
-	resource := resourceAccount()
+	resource := resourceLinkedAccount()
 	d := resource.Data(nil)
 	d.Set("vendor_account_id", os.Getenv("CLOUDABILITY_ACCOUNTID"))
 	d.Set("vendor_key", "aws")
 	c := config.Client()
-	resourceAccountRead(d, c)
+	resourceLinkedAccountRead(d, c)
 }
 
-func TestResourceAccountCreate(t *testing.T) {
+func TestResourceLinkedAccountCreate(t *testing.T) {
 	apikey := os.Getenv("CLOUDABILITY_APIKEY")
 	config := Config{
 		ApiKey: apikey,
 	}
-	resource := resourceAccount()
+	resource := resourceLinkedAccount()
 	d := resource.Data(nil)
-	d.Set("vendor_account_id", os.Getenv("CLOUDABILITY_ACCOUNTID"))
+	accountId := os.Getenv("CLOUDABILITY_ACCOUNTID")
+	d.Set("vendor_account_id", accountId)
 	d.Set("vendor_key", "aws")
+	d.Set("type", "aws_role")
+
 	c := config.Client()
-	err := resourceAccountCreate(d, c)
+	err := resourceLinkedAccountCreate(d, c)
 	if err != nil {
-		t.Fail()
+		t.Errorf(err.Error())
 	}
 }
 
-func TestResourceAccountDelete(t *testing.T) {
+func TestResourceLinkedAccountDelete(t *testing.T) {
 	apikey := os.Getenv("CLOUDABILITY_APIKEY")
 	config := Config{
 		ApiKey: apikey,
 	}
-	resource := resourceAccount()
+	resource := resourceLinkedAccount()
 	d := resource.Data(nil)
 	d.Set("vendor_account_id", os.Getenv("CLOUDABILITY_ACCOUNTID"))
 	d.Set("vendor_key", "aws")
 	c := config.Client()
-	resourceAccountDelete(d, c)
+	err := resourceLinkedAccountDelete(d, c)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 }
