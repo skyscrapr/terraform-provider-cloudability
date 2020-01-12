@@ -24,9 +24,12 @@ Download the latest binary for your target platform from the [releases](https://
     $ go build -o ~/.terraform.d/plugins/terraform-provider-cloudability
     ```
 
+## Examples
+
+Please see the [terraform-cloudabiliy-modules](https://github.com/skyscrapr/terraform-cloudability-modules) repo for example usage.
+
 ## TODO
 
 - Acceptance Tests
 - Makefile
-- Examples (perhaps link to the modules repo)
 - Travis CI (how to manage secrets)
