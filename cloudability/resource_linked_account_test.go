@@ -15,7 +15,10 @@ func TestResourceLinkedAccountRead(t *testing.T) {
 	d.Set("vendor_account_id", os.Getenv("CLOUDABILITY_ACCOUNTID"))
 	d.Set("vendor_key", "aws")
 	c := config.Client()
-	resourceLinkedAccountRead(d, c)
+	err := resourceLinkedAccountRead(d, c)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 }
 
 func TestResourceLinkedAccountCreate(t *testing.T) {

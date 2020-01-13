@@ -38,12 +38,13 @@ func resourceUser() *schema.Resource {
 				Default: false,
 				Description: "True if the user is allowed to have no filter set applied, false if they must always have a filter set applied",
 			},
-			"shared_dimension_filter_set_ids": {
-				Type: schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{Type: schema.TypeInt},
-				Description: "Array of filter sets ids available to the user",
-			},
+			// TODO:
+			// "shared_dimension_filter_set_ids": {
+			// 	Type: schema.TypeList,
+			// 	Optional: true,
+			// 	Elem: &schema.Schema{Type: schema.TypeInt},
+			// 	Description: "Array of filter sets ids available to the user",
+			// },
 			"default_dimension_filter_set_id": {
 				Type: schema.TypeInt,
 				Optional: true,

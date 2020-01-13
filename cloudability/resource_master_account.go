@@ -2,6 +2,7 @@ package cloudability
 
 import (
 	"log"
+	"encoding/json"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
@@ -161,9 +162,18 @@ func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 
 	vendorKey := d.Get("vendor_key").(string)
 	accountId := d.Get("vendor_account_id").(string)
+	log.Printf("[DEBUG] resourceMasterAccountRead [account_id: %q]", accountId)
 	account, err := client.Vendors().GetAccount(vendorKey, accountId)
 	if err != nil {
-		return err
+		// Ignore 404 errors (No account found)
+		var apiError cloudability.APIError
+		jsonErr := json.Unmarshal([]byte(err.Error()), &apiError)
+		if jsonErr == nil && apiError.Error.Code == 404 {
+			log.Print("[DEBUG] resourceMasterAccountRead Account not found. Ignoring")
+			err = nil
+		} else {
+			return err
+		}
 	}
 
 	if account != nil {
@@ -176,8 +186,10 @@ func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("parent_account_id", account.ParentAccountId)
 		d.Set("created_at", account.CreatedAt)
 		d.Set("bucket_name", account.Authorization.BucketName)
-		d.Set("report_name", account.Authorization.CostAndUsageReport.Name)
-		d.Set("report_prefix", account.Authorization.CostAndUsageReport.Prefix)
+		if account.Authorization.CostAndUsageReport != nil {
+			d.Set("report_name", account.Authorization.CostAndUsageReport.Name)
+			d.Set("report_prefix", account.Authorization.CostAndUsageReport.Prefix)
+		}
 		d.SetId(account.Id)
 	}
 	return nil

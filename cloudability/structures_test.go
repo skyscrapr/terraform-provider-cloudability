@@ -100,12 +100,12 @@ func TestFlattenStatements(t *testing.T) {
 
 func TestFlattenFilters(t *testing.T) {
 	cases := []struct {
-		filters []cloudability.ViewFilter
+		filters []*cloudability.ViewFilter
 		expected []map[string]interface{}
 	}{
 		{
-			filters: []cloudability.ViewFilter{
-				cloudability.ViewFilter{
+			filters: []*cloudability.ViewFilter{
+				&cloudability.ViewFilter{
 					Field: "test-field",
 					Comparator: "test-comparator",
 					Value: "test-value",

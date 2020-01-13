@@ -1,7 +1,7 @@
 package cloudability
 
 import (
-	"strconv"
+	"log"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
@@ -21,14 +21,15 @@ func resourceView() *schema.Resource {
 				Required: true,
 				Description: "The name of the view as it will appear to the end users",
 			},
-			"shared_with_users": {
-				Type: schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema {
-					Type: schema.TypeString,
-				},
-				Description: "The discrete list of users (by their unique identifier) that the view should be shared with",
-			},
+			// TODO:
+			// "shared_with_users": {
+			// 	Type: schema.TypeList,
+			// 	Optional: true,
+			// 	Elem: &schema.Schema {
+			// 		Type: schema.TypeString,
+			// 	},
+			// 	Description: "The discrete list of users (by their unique identifier) that the view should be shared with",
+			// },
 			"shared_with_organization": {
 				Type: schema.TypeBool,
 				Optional: true,
@@ -42,7 +43,7 @@ func resourceView() *schema.Resource {
 				Description: "Unique identifier for the user who created the view",
 			},
 			"filter": {
-				Type: schema.TypeSet,
+				Type: schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource {
 					Schema: map[string]*schema.Schema {
@@ -67,49 +68,52 @@ func resourceView() *schema.Resource {
 }
 
 func resourceViewCreate(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Implement
+	title := d.Get("title").(string)
+	
+	client := meta.(*cloudability.Client)
+	log.Printf("[DEBUG] resourceViewCreate [title]: %q]", title)
+	view := &cloudability.View{
+		Title: title,
+		// SharedWithUsers: todo,
+		SharedWithOrganization: d.Get("shared_with_organization").(bool),
+		Filters: inflateFilters(d.Get("filter").([]interface{})),
+	}
+	view, err := client.Views().NewView(view)
+	if err != nil {
+		return err
+	}
+	d.SetId(view.Id)
 	return resourceViewRead(d, meta)
 }
 
 func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
-	id, err := strconv.Atoi(d.Id())
-	if err != nil {
-		return err
-	}
-	view, err := client.Views().GetView(id)
+	view, err := client.Views().GetView(d.Id())
 	if err != nil {
 		return err
 	}
 
 	if view != nil {
 		d.Set("title", view.Title)
-		d.Set("shared_with_users", view.SharedWithUsers)
+		// d.Set("shared_with_users", view.SharedWithUsers)
 		d.Set("shared_with_organization", view.SharedWithOrganization)
 		d.Set("owner_id", view.OwnerId)
 		d.Set("filters", flattenFilters(view.Filters))
-		d.SetId(strconv.Itoa(view.Id))
-	} else {
-		// View not found. Remove from state
-		d.SetId("")
+		d.SetId(view.Id)
 	}
 	return nil
 }
  
 func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
-	id, err := strconv.Atoi(d.Id())
-	if err != nil {
-		return nil
-	}
 	view := &cloudability.View{
-		Id: id, 
+		Id: d.Id(), 
 		Title: d.Get("title").(string),
 		// SharedWithUsers: d.Get("shared_with_users").(string),
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),
-		// Filters: d.Get("filters")
+		Filters: inflateFilters(d.Get("filter").([]interface{})),
 	}
-	err = client.Views().UpdateView(view)
+	err := client.Views().UpdateView(view)
 	if err != nil {
 		return err
 	}
@@ -118,9 +122,5 @@ func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceViewDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
-	id, err := strconv.Atoi(d.Id())
-	if err != nil {
-		return nil
-	}
-	return client.Views().DeleteView(id)
+	return client.Views().DeleteView(d.Id())
 }

@@ -35,19 +35,19 @@ func flattenStatements(in []*cloudability.BusinessMappingStatement) []map[string
 	return out
 }
 
-func inflateStatements(in []map[string]interface{}) []cloudability.BusinessMappingStatement {
-	var out = make([]cloudability.BusinessMappingStatement, len(in))
-	for i, v := range in {
-		m := cloudability.BusinessMappingStatement{
-			MatchExpression: v["match_expression"].(string),
-			ValueExpression: v["value_expression"].(string),
+func inflateStatements(in []interface{}) []*cloudability.BusinessMappingStatement {
+	out := make([]*cloudability.BusinessMappingStatement, len(in))
+	for i, s := range(in) {
+		m := s.(map[string]interface{})
+		out[i] = &cloudability.BusinessMappingStatement{
+			MatchExpression: m["match_expression"].(string),
+			ValueExpression: m["value_expression"].(string),
 		}
-		out[i] = m
 	}
 	return out
 }
 
-func flattenFilters(in []cloudability.ViewFilter) []map[string]interface{} {
+func flattenFilters(in []*cloudability.ViewFilter) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -55,6 +55,19 @@ func flattenFilters(in []cloudability.ViewFilter) []map[string]interface{} {
 		m["comparator"] = v.Comparator
 		m["value"] = v.Value
 		out[i] = m
+	}
+	return out
+}
+
+func inflateFilters(in []interface{}) []*cloudability.ViewFilter {
+	out := make([]*cloudability.ViewFilter, len(in))
+	for i, s := range(in) {
+		m := s.(map[string]interface{})
+		out[i] = &cloudability.ViewFilter{
+			Field: m["field"].(string),
+			Comparator: m["comparator"].(string),
+			Value: m["value"].(string),
+		}
 	}
 	return out
 }

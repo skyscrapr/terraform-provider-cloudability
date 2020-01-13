@@ -2,6 +2,7 @@ package cloudability
 
 import (
 	"log"
+	"encoding/json"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
@@ -131,9 +132,18 @@ func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 	vendorKey := d.Get("vendor_key").(string)
 	accountId := d.Get("vendor_account_id").(string)
 	client := meta.(*cloudability.Client)
+	log.Printf("[DEBUG] resourceLinkedAccountRead [account_id: %q]", accountId)
 	account, err := client.Vendors().GetAccount(vendorKey, accountId)
 	if err != nil {
-		return err
+		// Ignore 404 errors (No account found)
+		var apiError cloudability.APIError
+		jsonErr := json.Unmarshal([]byte(err.Error()), &apiError)
+		if jsonErr == nil && apiError.Error.Code == 404 {
+			log.Print("[DEBUG] resourceLinkedAccountRead Account not found. Ignoring")
+			err = nil
+		} else {
+			return err
+		}
 	}
 
 	if account != nil {

@@ -62,26 +62,11 @@ func resourceBusinessMapping() *schema.Resource {
 
 func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)	
-
-	statement := d.Get("statement")
-	statements := statement.([]interface{})
-	businessMappingStatements := make([]*cloudability.BusinessMappingStatement, len(statements))
-	for i, s := range(statements) {
-		// Prevent panic on nil dead_letter_config. See GH-14961
-		// if dlcMaps[0] == nil {
-		// 	return fmt.Errorf("Nil dead_letter_config supplied for function: %s", functionName)
-		// }
-		m := s.(map[string]interface{})
-		businessMappingStatements[i] = &cloudability.BusinessMappingStatement{
-			MatchExpression: m["match_expression"].(string),
-			ValueExpression: m["value_expression"].(string),
-		}
-	}
 	businessMapping := &cloudability.BusinessMapping{
 		Name: d.Get("name").(string),
 		Kind: d.Get("kind").(string),
 		DefaultValue: d.Get("default_value").(string),
-		Statements: businessMappingStatements,
+		Statements: inflateStatements(d.Get("statement").([]interface{})),
 	}
 	newBusinessMapping, err := client.BusinessMappings().NewBusinessMapping(businessMapping)
 	if err != nil {
