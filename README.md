@@ -1,4 +1,4 @@
-# Terraform Provider for Cloudability
+# Skyscrapr Terraform Provider for Cloudability
 
 ## Requirements
 
