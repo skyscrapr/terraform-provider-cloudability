@@ -1,10 +1,10 @@
 package cloudability
 
 import (
-	"os"
-	"testing"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"os"
+	"testing"
 )
 
 var testAccProviders map[string]terraform.ResourceProvider

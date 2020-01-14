@@ -1,15 +1,15 @@
 package cloudability
 
 import (
-	"strconv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
+	"strconv"
 )
 
 func resourceUser() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceUserCreate,
-		Read: resourceUserRead,
+		Read:   resourceUserRead,
 		Update: resourceUserUpdate,
 		Delete: resourceUserDelete,
 		Importer: &schema.ResourceImporter{
@@ -17,25 +17,25 @@ func resourceUser() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"email": {
-				Type: schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The email address of the user",
 			},
 			"full_name": {
-				Type: schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The full name of the user",
 			},
 			"role": {
-				Type: schema.TypeString,
-				Optional: true,
-				Default: "User",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "User",
 				Description: "Role assigned to the user: [User|Administrator]",
 			},
 			"restricted": {
-				Type: schema.TypeBool,
-				Optional: true,
-				Default: false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 				Description: "True if the user is allowed to have no filter set applied, false if they must always have a filter set applied",
 			},
 			// TODO:
@@ -46,9 +46,9 @@ func resourceUser() *schema.Resource {
 			// 	Description: "Array of filter sets ids available to the user",
 			// },
 			"default_dimension_filter_set_id": {
-				Type: schema.TypeInt,
-				Optional: true,
-				Default: nil,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     nil,
 				Description: "Filter set id used by default for the user",
 			},
 		},
@@ -56,12 +56,12 @@ func resourceUser() *schema.Resource {
 }
 
 func resourceUserCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.Client)	
+	client := meta.(*cloudability.Client)
 
 	user := &cloudability.User{
-		Email: d.Get("email").(string),
-		FullName: d.Get("full_name").(string),
-		Role: d.Get("role").(string),
+		Email:      d.Get("email").(string),
+		FullName:   d.Get("full_name").(string),
+		Role:       d.Get("role").(string),
 		Restricted: d.Get("restricted").(bool),
 		// TODO: Fix this
 		// SharedDimensionFilterSetIds: d.Get("shared_dimension_filter_set_ids"),
@@ -96,7 +96,7 @@ func resourceUserRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	return nil
 }
- 
+
 func resourceUserUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
@@ -104,10 +104,10 @@ func resourceUserUpdate(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 	user := &cloudability.User{
-		Id: id,
-		Email: d.Get("email").(string),
-		FullName: d.Get("full_name").(string),
-		Role: d.Get("role").(string),
+		Id:         id,
+		Email:      d.Get("email").(string),
+		FullName:   d.Get("full_name").(string),
+		Role:       d.Get("role").(string),
 		Restricted: d.Get("restricted").(bool),
 		// TODO: Fix this
 		// SharedDimensionFilterSetIds: d.Get("shared_dimension_filter_set_ids"),

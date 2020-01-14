@@ -1,16 +1,16 @@
 package cloudability
 
 import (
-	"strconv"
-	"log"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
+	"log"
+	"strconv"
 )
 
 func resourceBusinessMapping() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBusinessMappingCreate,
-		Read: resourceBusinessMappingRead,
+		Read:   resourceBusinessMappingRead,
 		Update: resourceBusinessMappingUpdate,
 		Delete: resourceBusinessMappingDelete,
 		Importer: &schema.ResourceImporter{
@@ -18,42 +18,42 @@ func resourceBusinessMapping() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"index": {
-				Type: schema.TypeInt,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"kind": {
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
 				Optional: true,
-				Default: "",
+				Default:  "",
 			},
 			"name": {
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
 			"default_value": {
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
 				Optional: true,
-				Default: "",
+				Default:  "",
 			},
 			"statement": {
-				Type: schema.TypeList,
+				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"match_expression": &schema.Schema{
-							Type: schema.TypeString,
+						"match_expression": {
+							Type:     schema.TypeString,
 							Required: true,
 						},
-						"value_expression": &schema.Schema{
-							Type: schema.TypeString,
+						"value_expression": {
+							Type:     schema.TypeString,
 							Required: true,
 						},
 					},
 				},
 			},
 			"updated_at": {
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -61,12 +61,12 @@ func resourceBusinessMapping() *schema.Resource {
 }
 
 func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*cloudability.Client)	
+	client := meta.(*cloudability.Client)
 	businessMapping := &cloudability.BusinessMapping{
-		Name: d.Get("name").(string),
-		Kind: d.Get("kind").(string),
+		Name:         d.Get("name").(string),
+		Kind:         d.Get("kind").(string),
 		DefaultValue: d.Get("default_value").(string),
-		Statements: inflateStatements(d.Get("statement").([]interface{})),
+		Statements:   inflateStatements(d.Get("statement").([]interface{})),
 	}
 	newBusinessMapping, err := client.BusinessMappings().NewBusinessMapping(businessMapping)
 	if err != nil {
@@ -100,7 +100,6 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-
 func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	id, err := strconv.Atoi(d.Id())
@@ -108,9 +107,9 @@ func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) err
 		return nil
 	}
 	businessMapping := &cloudability.BusinessMapping{
-		Index: id,
-		Kind: d.Get("kind").(string),
-		Name: d.Get("name").(string),
+		Index:        id,
+		Kind:         d.Get("kind").(string),
+		Name:         d.Get("name").(string),
 		DefaultValue: d.Get("default_value").(string),
 		// TODO: Statements:
 	}

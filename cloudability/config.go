@@ -9,14 +9,14 @@ type Config struct {
 	ApiKey string
 }
 
-func NewConfig(d *schema.ResourceData) (*Config) {
+func NewConfig(d *schema.ResourceData) *Config {
 	c := &Config{
 		ApiKey: d.Get("apikey").(string),
 	}
 	return c
 }
 
-func (c *Config) Client() (*cloudability.Client) {
+func (c *Config) Client() *cloudability.Client {
 	client := cloudability.NewClient(c.ApiKey)
 	return client
 }
