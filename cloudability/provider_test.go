@@ -9,15 +9,18 @@ import (
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
-var testAccProvider *schema.Provider
-var testAccAWSProvider terraform.ResourceProvider
+var testAccProvider, testAccAWSProvider *schema.Provider
 
 func init() {
 	testAccProvider = Provider()
-	testAccAWSProvider = aws.Provider()
+	testAccAWSProvider = aws.Provider().(*schema.Provider)
+	// testAccAWSCURProvider = aws.Provider().(*schema.Provider)
+	// testAccAWSCURProvider.Schema["region"].Elem = "us-east-1"
+	// // testAccAWSCURProvider.Schema["alias"].Elem = "us-east-1"
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"cloudability": testAccProvider,
 		"aws":          testAccAWSProvider,
+		// "aws.us-east-1": testAccAWSCURProvider,
 	}
 }
 

@@ -3,11 +3,11 @@ package cloudability
 // import (
 // 	"os"
 // 	"testing"
-// 	"fmt"
-// 	"regexp"
-// 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-// 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-// )
+// 	// 	"fmt"
+// 	// 	"regexp"
+// 	// 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+// 	// 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+//)
 
 // func TestCloudabilityDataSourceAccountVerification(t *testing.T) {
 // 	resource.Test(t, resource.TestCase{
@@ -101,27 +101,9 @@ package cloudability
 // 	d := dataSource.Data(nil)
 
 // 	d.Set("vendor_account_id", os.Getenv("CLOUDABILITY_MASTER_ACCOUNTID"))
-// 	d.Set("vendor_key", "aws")
-// 	d.Set("retry_count", 1)
-// 	d.Set("retry_wait", 1)
-// 	c := config.Client()
-// 	err := dataSourceAccountVerificationRead(d, c)
-// 	if err != nil {
-// 		t.Errorf(err.Error())
-// 	}
-// }
-
-// func TestDatasourceAccountVerificationRead(t *testing.T) {
-// 	apikey := os.Getenv("CLOUDABILITY_APIKEY")
-// 	config := Config{
-// 		ApiKey: apikey,
-// 	}
-// 	dataSource := dataSourceAccountVerification()
-// 	d := dataSource.Data(nil)
-// 	d.Set("vendor_account_id", os.Getenv("CLOUDABILITY_MASTER_ACCOUNTID"))
-// 	d.Set("vendor_key", "aws")
-// 	d.Set("retry_count", 1)
-// 	d.Set("retry_wait", 1)
+// 	// d.Set("vendor_key", "aws")
+// 	// d.Set("retry_count", 20)
+// 	// d.Set("retry_wait", 5)
 // 	c := config.Client()
 // 	err := dataSourceAccountVerificationRead(d, c)
 // 	if err != nil {

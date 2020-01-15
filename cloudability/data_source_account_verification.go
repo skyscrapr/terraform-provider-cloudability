@@ -19,10 +19,10 @@ func dataSourceAccountVerification() *schema.Resource {
 				Description: "12 digit string corresponding to your AWS account ID",
 			},
 			"vendor_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "aws",
-				ForceNew:    true,
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "aws",
+				// ForceNew:    true,
 				Description: "'aws'",
 			},
 			"state": {
@@ -48,16 +48,20 @@ func dataSourceAccountVerification() *schema.Resource {
 			"retry_count": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     20,
 				Description: "Number of times to retry the verification",
 			},
 			"retry_wait": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     5,
 				Description: "Number of seconds to wait between verification retries",
+			},
+			"dependency": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Dummy dependency to avoid depends_on bug",
 			},
 		},
 	}
@@ -78,31 +82,26 @@ func dataSourceAccountVerificationRead(d *schema.ResourceData, meta interface{})
 			log.Printf("[DEBUG] VerifyAccount failed (%s)", err)
 			return err, false
 		}
-		if account.Verification.State == "error" {
-			log.Printf("[DEBUG] Error verfifying account. Reason: %s", account.Verification.Message)
-			err = fmt.Errorf("Verification was not successful: [%s] - %s", account.Verification.State, account.Verification.Message)
-			return err, false
-		} else if account.Verification.State != "verified" {
+		if account.Verification.State != "verified" {
 			log.Printf("[DEBUG] Invalid verfification state (%s) Reason: %s", account.Verification.State, account.Verification.Message)
 			err = fmt.Errorf("Verification was not successful: [%s] - %s", account.Verification.State, account.Verification.Message)
-		} else {
-			log.Print("[DEBUG] Account Verified")
-			return nil, true
+			return err, false
 		}
-		return err, false
+		log.Print("[DEBUG] Account Verified")
+		return nil, true
 	})
 	if err != nil {
 		log.Printf("[DEBUG] Could not verify the account: %q", err)
 		return err
 	}
-	if account != nil {
-		d.Set("vendor_account_id", account.VendorAccountId)
-		d.Set("vendor_key", account.VendorKey)
-		d.Set("state", account.Verification.State)
-		d.Set("last_verification_attempted_at", account.Verification.LastVerificationAttemptedAt)
-		d.Set("message", account.Verification.Message)
-		d.Set("external_id", account.Authorization.ExternalId)
-		d.SetId(account.Id)
-	}
+	d.SetId(account.VendorAccountId)
+	d.Set("vendor_account_id", account.VendorAccountId)
+	d.Set("retry_count", retryCount)
+	d.Set("retry_wait", retryWait)
+	d.Set("vendor_key", account.VendorKey)
+	d.Set("state", account.Verification.State)
+	d.Set("last_verification_attempted_at", account.Verification.LastVerificationAttemptedAt)
+	d.Set("message", account.Verification.Message)
+	d.Set("external_id", account.Authorization.ExternalId)
 	return nil
 }

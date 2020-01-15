@@ -1,6 +1,7 @@
 package cloudability
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -23,11 +24,11 @@ func TestAccMasterAccount(t *testing.T) {
 			{
 				Config: testAccMasterAccount(cloudabilityApikey, accountId, awsRegion),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMasterAccountResourceExists("cloudability_master_account.test", account),
+					testAccCheckMasterAccountResourceExists("cloudability_master_account.aws_payer_account", account),
 					// TODO: Complete this
 					// testAccCheckExampleWidgetValues(widget, rName),
-					resource.TestCheckResourceAttr("cloudability_master_account.test", "vendor_account_id", accountId),
-					resource.TestCheckResourceAttr("cloudability_master_account.test", "vendor_account_name", "9492-3762-0074"),
+					resource.TestCheckResourceAttr("cloudability_master_account.aws_payer_account", "vendor_account_id", accountId),
+					resource.TestCheckResourceAttr("cloudability_master_account.aws_payer_account", "vendor_account_name", "9492-3762-0074"),
 				),
 			},
 		},
@@ -44,7 +45,12 @@ func testAccCheckMasterAccountDestroy(s *terraform.State) error {
 		}
 		account, err := client.Vendors().GetAccount(rs.Primary.Attributes["vendor_key"], rs.Primary.ID)
 		if err != nil {
-			return err
+			// Ignore 404 errors (No account found)
+			var apiError cloudability.APIError
+			jsonErr := json.Unmarshal([]byte(err.Error()), &apiError)
+			if jsonErr != nil || apiError.Error.Code != 404 {
+				return err
+			}
 		} else if account != nil {
 			if account.Verification != nil || account.Authorization != nil {
 				return fmt.Errorf("Master Account (%s) still exists.", rs.Primary.ID)
@@ -79,14 +85,224 @@ func testAccCheckMasterAccountResourceExists(resourceName string, account *cloud
 // source = "github.com/skyscrapr/terraform-cloudability-modules/cloudability-master-account"
 
 // testAccMasterAccount returns a configuration for an MasterAccount
+// func testAccMasterAccount(cloudabilityApikey string, accountId string, awsRegion string) string {
+// 	return fmt.Sprintf(`
+// module "clouability_master_account" {
+// 	source = "github.com/skyscrapr/terraform-cloudability-modules//cloudability-master-account"
+// 	aws_payer_account_id = "%s"
+// 	aws_region = "%s"
+// 	cloudability_apikey = "%s"
+// }`, accountId, awsRegion, cloudabilityApikey)
+// }
+
 func testAccMasterAccount(cloudabilityApikey string, accountId string, awsRegion string) string {
 	return fmt.Sprintf(`
-module "clouability_master_account" {
-	source = "github.com/skyscrapr/terraform-cloudability-modules//cloudability-master-account"
-	aws_payer_account_id = "%s"
-	aws_region = "%s"
-	cloudability_apikey = "%s"
-}`, accountId, awsRegion, cloudabilityApikey)
+provider cloudability {
+	apikey = "%s"
+}
+
+resource "aws_s3_bucket" "cloudability" {
+	bucket_prefix = "cloudability-"
+	acl    = "private"
+	force_destroy = true
+}
+
+data "aws_iam_policy_document" "cloudability" {
+	statement {
+		actions = [
+			"s3:GetBucketAcl",
+			"s3:GetBucketPolicy"
+		]
+		principals {
+			type = "Service"
+			identifiers = ["billingreports.amazonaws.com"]
+		}
+		resources = [
+			"${aws_s3_bucket.cloudability.arn}"
+		]
+	}
+	statement {
+		actions = [
+			"s3:PutObject"
+		]
+		principals {
+			type = "Service"
+			identifiers = ["billingreports.amazonaws.com"]
+		}
+		resources = [
+			"${aws_s3_bucket.cloudability.arn}/*"
+		]
+	}
+}
+
+resource "aws_s3_bucket_policy" "cloudability" {
+	bucket = aws_s3_bucket.cloudability.id
+	policy = data.aws_iam_policy_document.cloudability.json
+}
+
+resource "aws_cur_report_definition" "cloudability" {
+	report_name                = "Cloudability"
+	time_unit                  = "HOURLY"
+	format                     = "textORcsv"
+	compression                = "GZIP"
+	additional_schema_elements = ["RESOURCES"]
+	s3_bucket                  = aws_s3_bucket.cloudability.bucket
+	s3_region                  = "%s"
+	s3_prefix                  = "CostAndUsageReports"
+	depends_on = [
+		aws_s3_bucket_policy.cloudability
+	]
+}
+
+resource "cloudability_master_account" "aws_payer_account" {
+    vendor_account_id = "%s"
+    bucket_name = aws_s3_bucket.cloudability.bucket
+    report_name = "Cloudability"
+	report_prefix = "CostAndUsageReports"
+	depends_on = [
+		aws_cur_report_definition.cloudability
+	]
+}
+
+resource "aws_iam_role" "cloudability_role" {
+	name               = "CloudabilityRole"
+	path               = "/"
+	assume_role_policy = <<EOF
+{
+	"Version": "2012-10-17",
+	"Statement": [
+	  {
+		"Action": "sts:AssumeRole",
+		"Principal": {
+		  "AWS": "arn:aws:iam::165736516723:user/cloudability"
+		},
+		"Effect": "Allow",
+		"Condition": {
+		  "StringEquals": {
+			"sts:ExternalId": "${cloudability_master_account.aws_payer_account.external_id}"
+		  }
+		}
+	  }
+	]
+}
+EOF
+}
+  
+resource "aws_iam_policy" "cloudability_verification_policy" {
+	name   = "CloudabilityVerificationPolicy"
+	path   = "/"
+	policy = <<EOF
+{
+	"Version": "2012-10-17",
+	"Statement": [
+	  {
+		"Sid": "VerifyRolePermissions",
+		"Effect": "Allow",
+		"Action": "iam:SimulatePrincipalPolicy",
+		"Resource": "${aws_iam_role.cloudability_role.arn}"
+	  }
+	]
+}
+EOF
+}
+  
+resource "aws_iam_policy" "cloudability_monitor_resources_policy" {
+	name   = "CloudabilityMonitorResourcesPolicy"
+	path   = "/"
+	policy = <<EOF
+{
+	"Version": "2012-10-17",
+	"Statement": [
+	  	{
+			"Effect": "Allow",
+			"Action": [
+			"cloudwatch:GetMetricStatistics",
+			"dynamodb:DescribeTable",
+			"dynamodb:ListTables",
+			"ec2:DescribeImages",
+			"ec2:DescribeInstances",
+			"ec2:DescribeRegions",
+			"ec2:DescribeReservedInstances",
+			"ec2:DescribeReservedInstancesModifications",
+			"ec2:DescribeSnapshots",
+			"ec2:DescribeVolumes",
+			"ec2:GetReservedInstancesExchangeQuote",
+			"ecs:DescribeClusters",
+			"ecs:DescribeContainerInstances",
+			"ecs:ListClusters",
+			"ecs:ListContainerInstances",
+			"elasticache:DescribeCacheClusters",
+			"elasticache:DescribeReservedCacheNodes",
+			"elasticache:ListTagsForResource",
+			"elasticmapreduce:DescribeCluster",
+			"elasticmapreduce:ListClusters",
+			"elasticmapreduce:ListInstances",
+			"rds:DescribeDBClusters",
+			"rds:DescribeDBInstances",
+			"rds:DescribeReservedDBInstances",
+			"rds:ListTagsForResource",
+			"redshift:DescribeClusters",
+			"redshift:DescribeReservedNodes",
+			"redshift:DescribeTags",
+			"savingsplans:DescribeSavingsPlans"
+			],
+			"Resource": "*"
+	  	}
+	]
+}
+EOF
+}
+
+resource "aws_iam_policy" "cloudability_master_payer_policy" {
+	name   = "CloudabilityMasterPayerPolicy"
+	path   = "/"
+	policy = <<EOF
+{
+	"Version": "2012-10-17",
+	"Statement": [
+	  	{
+			"Effect": "Allow",
+			"Action": [
+				"s3:ListBucket",
+				"s3:GetObject"
+			],
+			"Resource": [
+				"${aws_s3_bucket.cloudability.arn}",
+				"${aws_s3_bucket.cloudability.arn}/*"
+			]
+	  	},
+	  	{
+			"Effect": "Allow",
+			"Action": [
+				"organizations:ListAccounts"
+			],
+			"Resource": "*"
+		}
+	]
+}
+EOF
+}
+  
+resource "aws_iam_role_policy_attachment" "cloudability_master_payer_policy" {
+	role       = aws_iam_role.cloudability_role.id
+	policy_arn = aws_iam_policy.cloudability_master_payer_policy.arn
+}  
+  
+resource "aws_iam_role_policy_attachment" "cloudability_verification_policy" {
+	role       = aws_iam_role.cloudability_role.id
+	policy_arn = aws_iam_policy.cloudability_verification_policy.arn
+}
+  
+resource "aws_iam_role_policy_attachment" "cloudability_monitor_resources_policy" {
+	role       = aws_iam_role.cloudability_role.id
+	policy_arn = aws_iam_policy.cloudability_monitor_resources_policy.arn
+}
+
+data "cloudability_account_verification" "aws_payer_account" {
+	vendor_account_id = "%s"
+	dependency = aws_iam_role.cloudability_role.id
+}
+`, cloudabilityApikey, awsRegion, accountId, accountId)
 }
 
 // func TestResourceMasterAccountRead(t *testing.T) {
