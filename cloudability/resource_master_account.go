@@ -158,7 +158,6 @@ func resourceMasterAccountCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
-
 	vendorKey := d.Get("vendor_key").(string)
 	accountId := d.Get("vendor_account_id").(string)
 	log.Printf("[DEBUG] resourceMasterAccountRead [account_id: %q]", accountId)
@@ -179,15 +178,20 @@ func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("vendor_account_name", account.VendorAccountName)
 		d.Set("vendor_account_id", account.VendorAccountId)
 		d.Set("vendor_key", account.VendorKey)
-		d.Set("verification", flattenVerification(account.Verification))
-		d.Set("authorization", flattenAuthorization(account.Authorization))
-		d.Set("external_id", account.Authorization.ExternalId)
 		d.Set("parent_account_id", account.ParentAccountId)
 		d.Set("created_at", account.CreatedAt)
-		d.Set("bucket_name", account.Authorization.BucketName)
-		if account.Authorization.CostAndUsageReport != nil {
-			d.Set("report_name", account.Authorization.CostAndUsageReport.Name)
-			d.Set("report_prefix", account.Authorization.CostAndUsageReport.Prefix)
+
+		if account.Verification != nil {
+			d.Set("verification", flattenVerification(account.Verification))
+		}
+		if account.Authorization != nil {
+			d.Set("authorization", flattenAuthorization(account.Authorization))
+			d.Set("external_id", account.Authorization.ExternalId)
+			if account.Authorization.CostAndUsageReport != nil {
+				d.Set("report_name", account.Authorization.CostAndUsageReport.Name)
+				d.Set("report_prefix", account.Authorization.CostAndUsageReport.Prefix)
+				d.Set("bucket_name", account.Authorization.BucketName)
+			}
 		}
 		d.SetId(account.Id)
 	}

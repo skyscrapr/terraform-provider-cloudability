@@ -5,6 +5,9 @@ import (
 )
 
 func flattenVerification(in *cloudability.Verification) []map[string]interface{} {
+	if in == nil {
+		return nil
+	}
 	var out = make([]map[string]interface{}, 1, 1)
 	m := make(map[string]interface{})
 	m["state"] = in.State
@@ -15,6 +18,9 @@ func flattenVerification(in *cloudability.Verification) []map[string]interface{}
 }
 
 func flattenAuthorization(in *cloudability.Authorization) []map[string]interface{} {
+	if in == nil {
+		return nil
+	}
 	var out = make([]map[string]interface{}, 1, 1)
 	m := make(map[string]interface{})
 	m["type"] = in.Type
