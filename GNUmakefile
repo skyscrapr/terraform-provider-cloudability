@@ -1,4 +1,4 @@
-TEST?="./cloudability"
+TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PKG_NAME=cloudability
 
