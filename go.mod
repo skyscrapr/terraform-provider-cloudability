@@ -20,7 +20,6 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/skyscrapr/cloudability-sdk-go v0.0.0-20200116053604-33f025cb18f8
-	github.com/terraform-providers/terraform-provider-aws v1.60.0
 	github.com/ulikunitz/xz v0.5.6 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/zclconf/go-cty v1.2.1 // indirect
@@ -28,7 +27,7 @@ require (
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sys v0.0.0-20200116001909-b77594299b42 // indirect
-	golang.org/x/tools v0.0.0-20200116011002-7042ee646e79 // indirect
+	golang.org/x/tools v0.0.0-20200116062425-473961ec044c // indirect
 	google.golang.org/genproto v0.0.0-20200115191322-ca5a22157cba // indirect
 )
 
