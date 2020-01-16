@@ -1,5 +1,7 @@
 # Skyscrapr Terraform Provider for Cloudability
 
+[![Build Status](https://travis-ci.com/skyscrapr/terraform-provider-cloudability.svg?branch=master)](https://travis-ci.com/skyscrapr/terraform-provider-cloudability)
+
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) 0.12+
