@@ -32,6 +32,6 @@ require (
 	google.golang.org/genproto v0.0.0-20200113173426-e1de0a7b01eb // indirect
 )
 
-replace github.com/skyscrapr/cloudability-sdk-go => ../cloudability-sdk-go
+// replace github.com/skyscrapr/cloudability-sdk-go => ../cloudability-sdk-go
 
-replace github.com/terraform-providers/terraform-provider-aws => ../terraform-provider-aws
+// replace github.com/terraform-providers/terraform-provider-aws => ../terraform-provider-aws
