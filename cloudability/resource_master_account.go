@@ -145,8 +145,8 @@ func resourceMasterAccountCreate(d *schema.ResourceData, meta interface{}) error
 		},
 		BucketName: bucketName,
 		CostAndUsageReport: &cloudability.CostAndUsageReport{
-			Name:   &reportName,
-			Prefix: &reportPrefix,
+			Name:   reportName,
+			Prefix: reportPrefix,
 		},
 	}
 	_, err := client.Vendors().NewMasterAccount(vendorKey, params)

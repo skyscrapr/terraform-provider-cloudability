@@ -12,7 +12,7 @@ import (
 
 func TestAccMasterAccount(t *testing.T) {
 	var account *cloudability.Account
-	accountId := os.Getenv("CLOUDABILITY_MASTER_ACCOUNTID")
+	payerAccountId := os.Getenv("CLOUDABILITY_MASTER_ACCOUNTID")
 	cloudabilityApikey := os.Getenv("CLOUDABILITY_APIKEY")
 	awsRegion := os.Getenv("AWS_DEFAULT_REGION")
 
@@ -22,13 +22,12 @@ func TestAccMasterAccount(t *testing.T) {
 		CheckDestroy: testAccCheckMasterAccountDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMasterAccount(cloudabilityApikey, accountId, awsRegion),
+				Config: testAccMasterAccount(cloudabilityApikey, awsRegion, payerAccountId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMasterAccountResourceExists("cloudability_master_account.aws_payer_account", account),
-					// TODO: Complete this
 					// testAccCheckExampleWidgetValues(widget, rName),
-					resource.TestCheckResourceAttr("cloudability_master_account.aws_payer_account", "vendor_account_id", accountId),
-					resource.TestCheckResourceAttr("cloudability_master_account.aws_payer_account", "vendor_account_name", "9492-3762-0074"),
+					resource.TestCheckResourceAttr("cloudability_master_account.aws_payer_account", "vendor_account_id", payerAccountId),
+					resource.TestCheckResourceAttr("cloudability_master_account.aws_payer_account", "vendor_key", "aws"),
 				),
 			},
 		},
@@ -82,20 +81,18 @@ func testAccCheckMasterAccountResourceExists(resourceName string, account *cloud
 	}
 }
 
-// source = "github.com/skyscrapr/terraform-cloudability-modules/cloudability-master-account"
-
-// testAccMasterAccount returns a configuration for an MasterAccount
-// func testAccMasterAccount(cloudabilityApikey string, accountId string, awsRegion string) string {
+// // testAccMasterAccount returns a configuration for an MasterAccount
+// func testAccMasterAccount(cloudabilityApikey string, awsRegion string, payerAccountId string) string {
 // 	return fmt.Sprintf(`
-// module "clouability_master_account" {
+// module "cloudability_master_account" {
 // 	source = "github.com/skyscrapr/terraform-cloudability-modules//cloudability-master-account"
 // 	aws_payer_account_id = "%s"
 // 	aws_region = "%s"
 // 	cloudability_apikey = "%s"
-// }`, accountId, awsRegion, cloudabilityApikey)
+// }`, payerAccountId, awsRegion, cloudabilityApikey)
 // }
 
-func testAccMasterAccount(cloudabilityApikey string, accountId string, awsRegion string) string {
+func testAccMasterAccount(cloudabilityApikey string, awsRegion string, payerAccountId string) string {
 	return fmt.Sprintf(`
 provider cloudability {
 	apikey = "%s"
@@ -187,7 +184,7 @@ resource "aws_iam_role" "cloudability_role" {
 }
 EOF
 }
-  
+
 resource "aws_iam_policy" "cloudability_verification_policy" {
 	name   = "CloudabilityVerificationPolicy"
 	path   = "/"
@@ -205,7 +202,7 @@ resource "aws_iam_policy" "cloudability_verification_policy" {
 }
 EOF
 }
-  
+
 resource "aws_iam_policy" "cloudability_monitor_resources_policy" {
 	name   = "CloudabilityMonitorResourcesPolicy"
 	path   = "/"
@@ -282,17 +279,17 @@ resource "aws_iam_policy" "cloudability_master_payer_policy" {
 }
 EOF
 }
-  
+
 resource "aws_iam_role_policy_attachment" "cloudability_master_payer_policy" {
 	role       = aws_iam_role.cloudability_role.id
 	policy_arn = aws_iam_policy.cloudability_master_payer_policy.arn
-}  
-  
+}
+
 resource "aws_iam_role_policy_attachment" "cloudability_verification_policy" {
 	role       = aws_iam_role.cloudability_role.id
 	policy_arn = aws_iam_policy.cloudability_verification_policy.arn
 }
-  
+
 resource "aws_iam_role_policy_attachment" "cloudability_monitor_resources_policy" {
 	role       = aws_iam_role.cloudability_role.id
 	policy_arn = aws_iam_policy.cloudability_monitor_resources_policy.arn
@@ -302,7 +299,7 @@ data "cloudability_account_verification" "aws_payer_account" {
 	vendor_account_id = "%s"
 	dependency = aws_iam_role.cloudability_role.id
 }
-`, cloudabilityApikey, awsRegion, accountId, accountId)
+`, cloudabilityApikey, awsRegion, payerAccountId, payerAccountId)
 }
 
 // func TestResourceMasterAccountRead(t *testing.T) {
