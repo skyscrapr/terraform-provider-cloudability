@@ -1,5 +1,6 @@
 ---
 dist: trusty
+os: linux
 services:
   - docker
 language: go
@@ -13,12 +14,11 @@ install:
 script:
   - make test
   - make vet
-  - make website-test
 
 branches:
   only:
     - master
-matrix:
+jobs:
   fast_finish: true
   allow_failures:
     - go: tip
