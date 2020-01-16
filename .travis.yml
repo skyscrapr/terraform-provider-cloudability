@@ -22,8 +22,8 @@ jobs:
       name: "Dependencies"
       script: make depscheck
 
-# install:
-#   - make tools
+install:
+  - make tools
 
 branches:
   only:
