@@ -6,7 +6,7 @@ package cloudability
 // 	"github.com/terraform-providers/terraform-provider-aws/aws"
 // 	"os"
 // 	"testing"
-// )
+// ) 
 
 // var testAccProviders map[string]terraform.ResourceProvider
 // var testAccProvider, testAccAWSProvider *schema.Provider
