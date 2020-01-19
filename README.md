@@ -32,6 +32,4 @@ Please see the [terraform-cloudabiliy-modules](https://github.com/skyscrapr/terr
 
 ## TODO
 
-- Acceptance Tests
-- Makefile
-- Travis CI (how to manage secrets)
+- Fix Acceptance Tests 
