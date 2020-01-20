@@ -111,7 +111,7 @@ func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) err
 		Kind:         d.Get("kind").(string),
 		Name:         d.Get("name").(string),
 		DefaultValue: d.Get("default_value").(string),
-		// TODO: Statements:
+		Statements:   inflateStatements(d.Get("statement").([]interface{})),
 	}
 	err = client.BusinessMappings().UpdateBusinessMapping(businessMapping)
 	if err != nil {
