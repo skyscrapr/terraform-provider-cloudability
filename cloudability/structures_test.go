@@ -43,7 +43,7 @@ func TestFlattenAuthorization(t *testing.T) {
 			authorization: &cloudability.Authorization{
 				Type:       "test-type",
 				RoleName:   "test-role_name",
-				ExternalId: "test-external_id",
+				ExternalID: "test-external_id",
 			},
 			expected: []map[string]interface{}{
 				{

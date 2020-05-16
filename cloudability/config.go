@@ -5,18 +5,21 @@ import (
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
 
+// Config - Cloudability Provider config
 type Config struct {
-	ApiKey string
+	APIKey string
 }
 
+// NewConfig - Create Cloudability Provider Config
 func NewConfig(d *schema.ResourceData) *Config {
 	c := &Config{
-		ApiKey: d.Get("apikey").(string),
+		APIKey: d.Get("apikey").(string),
 	}
 	return c
 }
 
+// Client - Create Cloudability API Client
 func (c *Config) Client() *cloudability.Client {
-	client := cloudability.NewClient(c.ApiKey)
+	client := cloudability.NewClient(c.APIKey)
 	return client
 }
