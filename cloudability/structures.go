@@ -25,7 +25,7 @@ func flattenAuthorization(in *cloudability.Authorization) []map[string]interface
 	m := make(map[string]interface{})
 	m["type"] = in.Type
 	m["role_name"] = in.RoleName
-	m["external_id"] = in.ExternalId
+	m["external_id"] = in.ExternalID
 	out[0] = m
 	return out
 }

@@ -112,13 +112,13 @@ func resourceLinkedAccount() *schema.Resource {
 
 func resourceLinkedAccountCreate(d *schema.ResourceData, meta interface{}) error {
 	vendorKey := d.Get("vendor_key").(string)
-	accountId := d.Get("vendor_account_id").(string)
+	accountID := d.Get("vendor_account_id").(string)
 	credType := d.Get("type").(string)
 
 	client := meta.(*cloudability.Client)
-	log.Printf("[DEBUG] resourceAccountCreate NewAccount [account_id: %q]", accountId)
+	log.Printf("[DEBUG] resourceAccountCreate NewAccount [account_id: %q]", accountID)
 	params := &cloudability.NewLinkedAccountParams{
-		VendorAccountId: accountId,
+		VendorAccountID: accountID,
 		Type:            credType,
 	}
 	_, err := client.Vendors().NewLinkedAccount(vendorKey, params)
@@ -130,10 +130,10 @@ func resourceLinkedAccountCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 	vendorKey := d.Get("vendor_key").(string)
-	accountId := d.Get("vendor_account_id").(string)
+	accountID := d.Get("vendor_account_id").(string)
 	client := meta.(*cloudability.Client)
-	log.Printf("[DEBUG] resourceLinkedAccountRead [account_id: %q]", accountId)
-	account, err := client.Vendors().GetAccount(vendorKey, accountId)
+	log.Printf("[DEBUG] resourceLinkedAccountRead [account_id: %q]", accountID)
+	account, err := client.Vendors().GetAccount(vendorKey, accountID)
 	if err != nil {
 		// Ignore 404 errors (No account found)
 		var apiError cloudability.APIError
@@ -148,14 +148,14 @@ func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 
 	if account != nil {
 		d.Set("vendor_account_name", account.VendorAccountName)
-		d.Set("vendor_account_id", account.VendorAccountId)
+		d.Set("vendor_account_id", account.VendorAccountID)
 		d.Set("vendor_key", account.VendorKey)
 		d.Set("verification", flattenVerification(account.Verification))
 		d.Set("authorization", flattenAuthorization(account.Authorization))
-		d.Set("external_id", account.Authorization.ExternalId)
-		d.Set("parent_account_id", account.ParentAccountId)
+		d.Set("external_id", account.Authorization.ExternalID)
+		d.Set("parent_account_id", account.ParentAccountID)
 		d.Set("created_at", account.CreatedAt)
-		d.SetId(account.Id)
+		d.SetId(account.ID)
 	}
 	return nil
 }
@@ -163,7 +163,7 @@ func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 func resourceLinkedAccountDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	vendorKey := d.Get("vendor_key").(string)
-	accountId := d.Get("vendor_account_id").(string)
-	err := client.Vendors().DeleteAccount(vendorKey, accountId)
+	accountID := d.Get("vendor_account_id").(string)
+	err := client.Vendors().DeleteAccount(vendorKey, accountID)
 	return err
 }

@@ -82,7 +82,7 @@ func resourceViewCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	d.SetId(view.Id)
+	d.SetId(view.ID)
 	return resourceViewRead(d, meta)
 }
 
@@ -97,9 +97,9 @@ func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("title", view.Title)
 		// d.Set("shared_with_users", view.SharedWithUsers)
 		d.Set("shared_with_organization", view.SharedWithOrganization)
-		d.Set("owner_id", view.OwnerId)
+		d.Set("owner_id", view.OwnerID)
 		d.Set("filters", flattenFilters(view.Filters))
-		d.SetId(view.Id)
+		d.SetId(view.ID)
 	}
 	return nil
 }
@@ -107,7 +107,7 @@ func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	view := &cloudability.View{
-		Id:    d.Id(),
+		ID:    d.Id(),
 		Title: d.Get("title").(string),
 		// SharedWithUsers: d.Get("shared_with_users").(string),
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),

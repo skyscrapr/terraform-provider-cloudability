@@ -8,7 +8,7 @@ package cloudability
 // func TestResourceCloudabilityBusinessMappingRead(t *testing.T) {
 // 	apikey, _ := os.LookupEnv("CLOUDABILTIY_APIKEY")
 // 	config := Config{
-// 		ApiKey: apikey,
+// 		APIKey: apikey,
 // 	}
 // 	resouce := resourceBusinessMapping()
 // 	d := resouce.Data(nil)
