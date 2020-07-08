@@ -10,7 +10,11 @@
 
 ## Installing the Provider
 
-Download the latest binary for your target platform from the [releases](https://github.com/skyscrapr/terraform-provider-cloudability/releases) tab.
+The provider is now in the offical [![community provider list for terraform](https://www.terraform.io/docs/providers/type/community-index.html)
+
+This enables the provider to be auto-installed when you run ```terraform init```
+
+You can also download the latest binary for your target platform from the [releases](https://github.com/skyscrapr/terraform-provider-cloudability/releases) tab.
 
 ## Building the Provider
 
@@ -33,3 +37,4 @@ Please see the [terraform-cloudabiliy-modules](https://github.com/skyscrapr/terr
 ## TODO
 
 - Fix Acceptance Tests 
+- - There is an issue with the support for multiple providers in the acceptance tests. Needs revisiting.
