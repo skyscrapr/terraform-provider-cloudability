@@ -36,12 +36,12 @@ func resourceView() *schema.Resource {
 				Default:     true,
 				Description: "Whether the view should be accessible to the entire organization",
 			},
-			"owner_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Unique identifier for the user who created the view",
-			},
+			// "owner_id": {
+			// 	Type:        schema.TypeString,
+			// 	Optional:    true,
+			// 	Computed:    true,
+			// 	Description: "Unique identifier for the user who created the view",
+			// },
 			"filter": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -97,7 +97,7 @@ func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("title", view.Title)
 		// d.Set("shared_with_users", view.SharedWithUsers)
 		d.Set("shared_with_organization", view.SharedWithOrganization)
-		d.Set("owner_id", view.OwnerID)
+		// d.Set("owner_id", view.OwnerID)
 		d.Set("filters", flattenFilters(view.Filters))
 		d.SetId(view.ID)
 	}
