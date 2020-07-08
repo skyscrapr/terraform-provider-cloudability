@@ -3,6 +3,7 @@ module github.com/skyscrapr/terraform-provider-cloudability
 go 1.13
 
 // replace github.com/skyscrapr/cloudability-sdk-go => ../cloudability-sdk-go
+
 // replace github.com/terraform-providers/terraform-provider-aws => ../terraform-provider-aws
 
 require (
@@ -20,7 +21,7 @@ require (
 	github.com/hashicorp/yamux v0.0.0-20190923154419-df201c70410d // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
-	github.com/skyscrapr/cloudability-sdk-go v0.0.0-00010101000000-000000000000
+	github.com/skyscrapr/cloudability-sdk-go v0.0.0-20200708081547-4d9125124194
 	github.com/ulikunitz/xz v0.5.6 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/zclconf/go-cty v1.2.1 // indirect
