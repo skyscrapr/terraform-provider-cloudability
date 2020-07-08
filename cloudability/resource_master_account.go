@@ -130,17 +130,17 @@ func resourceMasterAccount() *schema.Resource {
 
 func resourceMasterAccountCreate(d *schema.ResourceData, meta interface{}) error {
 	vendorKey := d.Get("vendor_key").(string)
-	accountId := d.Get("vendor_account_id").(string)
+	accountID := d.Get("vendor_account_id").(string)
 	credType := d.Get("type").(string)
 	bucketName := d.Get("bucket_name").(string)
 	reportName := d.Get("report_name").(string)
 	reportPrefix := d.Get("report_prefix").(string)
 
 	client := meta.(*cloudability.Client)
-	log.Printf("[DEBUG] resourceAccountCreate NewAccount [account_id: %q]", accountId)
+	log.Printf("[DEBUG] resourceAccountCreate NewAccount [account_id: %q]", accountID)
 	params := &cloudability.NewMasterAccountParams{
 		NewLinkedAccountParams: &cloudability.NewLinkedAccountParams{
-			VendorAccountId: accountId,
+			VendorAccountID: accountID,
 			Type:            credType,
 		},
 		BucketName: bucketName,
@@ -159,9 +159,9 @@ func resourceMasterAccountCreate(d *schema.ResourceData, meta interface{}) error
 func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	vendorKey := d.Get("vendor_key").(string)
-	accountId := d.Get("vendor_account_id").(string)
-	log.Printf("[DEBUG] resourceMasterAccountRead [account_id: %q]", accountId)
-	account, err := client.Vendors().GetAccount(vendorKey, accountId)
+	accountID := d.Get("vendor_account_id").(string)
+	log.Printf("[DEBUG] resourceMasterAccountRead [account_id: %q]", accountID)
+	account, err := client.Vendors().GetAccount(vendorKey, accountID)
 	if err != nil {
 		// Ignore 404 errors (No account found)
 		var apiError cloudability.APIError
@@ -176,9 +176,9 @@ func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 
 	if account != nil {
 		d.Set("vendor_account_name", account.VendorAccountName)
-		d.Set("vendor_account_id", account.VendorAccountId)
+		d.Set("vendor_account_id", account.VendorAccountID)
 		d.Set("vendor_key", account.VendorKey)
-		d.Set("parent_account_id", account.ParentAccountId)
+		d.Set("parent_account_id", account.ParentAccountID)
 		d.Set("created_at", account.CreatedAt)
 
 		if account.Verification != nil {
@@ -186,14 +186,14 @@ func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		if account.Authorization != nil {
 			d.Set("authorization", flattenAuthorization(account.Authorization))
-			d.Set("external_id", account.Authorization.ExternalId)
+			d.Set("external_id", account.Authorization.ExternalID)
 			if account.Authorization.CostAndUsageReport != nil {
 				d.Set("report_name", account.Authorization.CostAndUsageReport.Name)
 				d.Set("report_prefix", account.Authorization.CostAndUsageReport.Prefix)
 				d.Set("bucket_name", account.Authorization.BucketName)
 			}
 		}
-		d.SetId(account.Id)
+		d.SetId(account.ID)
 	}
 	return nil
 }
@@ -201,7 +201,7 @@ func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 func resourceMasterAccountDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	vendorKey := d.Get("vendor_key").(string)
-	accountId := d.Get("vendor_account_id").(string)
-	err := client.Vendors().DeleteAccount(vendorKey, accountId)
+	accountID := d.Get("vendor_account_id").(string)
+	err := client.Vendors().DeleteAccount(vendorKey, accountID)
 	return err
 }

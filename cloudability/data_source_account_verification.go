@@ -69,15 +69,15 @@ func dataSourceAccountVerification() *schema.Resource {
 
 func dataSourceAccountVerificationRead(d *schema.ResourceData, meta interface{}) error {
 	vendorKey := d.Get("vendor_key").(string)
-	accountId := d.Get("vendor_account_id").(string)
+	accountID := d.Get("vendor_account_id").(string)
 	retryCount := d.Get("retry_count").(int)
 	retryWait := d.Get("retry_wait").(int)
 
 	client := meta.(*cloudability.Client)
 	var account *cloudability.Account
-	log.Printf("[DEBUG] resourceAccountVerificationRead [account_id: %q]", accountId)
+	log.Printf("[DEBUG] resourceAccountVerificationRead [account_id: %q]", accountID)
 	err := retry(retryCount, time.Duration(retryWait)*time.Second, func() (err error, exit bool) {
-		account, err = client.Vendors().VerifyAccount(vendorKey, accountId)
+		account, err = client.Vendors().VerifyAccount(vendorKey, accountID)
 		if err != nil {
 			log.Printf("[DEBUG] VerifyAccount failed (%s)", err)
 			return err, false
@@ -94,14 +94,14 @@ func dataSourceAccountVerificationRead(d *schema.ResourceData, meta interface{})
 		log.Printf("[DEBUG] Could not verify the account: %q", err)
 		return err
 	}
-	d.SetId(account.VendorAccountId)
-	d.Set("vendor_account_id", account.VendorAccountId)
+	d.SetId(account.VendorAccountID)
+	d.Set("vendor_account_id", account.VendorAccountID)
 	d.Set("retry_count", retryCount)
 	d.Set("retry_wait", retryWait)
 	d.Set("vendor_key", account.VendorKey)
 	d.Set("state", account.Verification.State)
 	d.Set("last_verification_attempted_at", account.Verification.LastVerificationAttemptedAt)
 	d.Set("message", account.Verification.Message)
-	d.Set("external_id", account.Authorization.ExternalId)
+	d.Set("external_id", account.Authorization.ExternalID)
 	return nil
 }
