@@ -8,9 +8,9 @@ import (
 	// 	// 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	// "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	// "github.com/skyscrapr/cloudability-sdk-go/cloudability"
-	"net/url"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 )
 
 // func TestCloudabilityDataSourceRightsizingResource(t *testing.T) {

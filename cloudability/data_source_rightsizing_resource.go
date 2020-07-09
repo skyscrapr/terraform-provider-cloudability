@@ -23,13 +23,13 @@ func dataSourceRightsizingResource() *schema.Resource {
 				Description: "Cloud Service",
 			},
 			"resource_identifier": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: "Cloud instance id",
 			},
 			"default_instance_type": {
-				Type:     schema.TypeString,
+				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: "Default value for instance type",
