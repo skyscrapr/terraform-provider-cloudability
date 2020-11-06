@@ -17,4 +17,3 @@ provider cloudability {
 The following arguments are supported:
 
 * `apikey` - (Required) API Key used to authenticate with the Cloudability API. Obtained from Cloudability preferences.
-»
