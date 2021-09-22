@@ -1,11 +1,11 @@
 package cloudability
 
 // import (
-// 	"encoding/json"
-// 	"fmt"
-// 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-// 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-// 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
+// 	// "encoding/json"
+// 	// "fmt"
+// 	// "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+// 	// "github.com/hashicorp/terraform-plugin-sdk/terraform"
+// 	// "github.com/skyscrapr/cloudability-sdk-go/cloudability"
 // 	"os"
 // 	"testing"
 // )
@@ -321,7 +321,7 @@ package cloudability
 // func TestResourceMasterAccountCreate(t *testing.T) {
 // 	apikey := os.Getenv("CLOUDABILITY_APIKEY")
 // 	config := Config{
-// 		ApiKey: apikey,
+// 		APIKey: apikey,
 // 	}
 // 	resource := resourceMasterAccount()
 // 	d := resource.Data(nil)
@@ -329,7 +329,7 @@ package cloudability
 // 	d.Set("vendor_account_id", accountId)
 // 	d.Set("vendor_key", "aws")
 // 	d.Set("type", "aws_role")
-// 	d.Set("bucket_name", fmt.Sprintf("cloudability-%s", accountId))
+// 	d.Set("bucket_name", "cloudability-20210922030558640100000001")
 // 	d.Set("report_name", "Cloudability")
 // 	d.Set("report_prefix", "CostAndUsageReports")
 
@@ -343,7 +343,7 @@ package cloudability
 // func TestResourceMasterAccountDelete(t *testing.T) {
 // 	apikey := os.Getenv("CLOUDABILITY_APIKEY")
 // 	config := Config{
-// 		ApiKey: apikey,
+// 		APIKey: apikey,
 // 	}
 // 	resource := resourceMasterAccount()
 // 	d := resource.Data(nil)

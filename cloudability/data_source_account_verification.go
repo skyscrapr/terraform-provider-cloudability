@@ -76,19 +76,19 @@ func dataSourceAccountVerificationRead(d *schema.ResourceData, meta interface{})
 	client := meta.(*cloudability.Client)
 	var account *cloudability.Account
 	log.Printf("[DEBUG] resourceAccountVerificationRead [account_id: %q]", accountID)
-	err := retry(retryCount, time.Duration(retryWait)*time.Second, func() (err error, exit bool) {
+	err := retry(retryCount, time.Duration(retryWait)*time.Second, func() (exit bool, err error) {
 		account, err = client.Vendors().VerifyAccount(vendorKey, accountID)
 		if err != nil {
 			log.Printf("[DEBUG] VerifyAccount failed (%s)", err)
-			return err, false
+			return false, err
 		}
 		if account.Verification.State != "verified" {
 			log.Printf("[DEBUG] Invalid verfification state (%s) Reason: %s", account.Verification.State, account.Verification.Message)
-			err = fmt.Errorf("Verification was not successful: [%s] - %s", account.Verification.State, account.Verification.Message)
-			return err, false
+			err = fmt.Errorf("verification was not successful: [%s] - %s", account.Verification.State, account.Verification.Message)
+			return false, err
 		}
 		log.Print("[DEBUG] Account Verified")
-		return nil, true
+		return true, nil
 	})
 	if err != nil {
 		log.Printf("[DEBUG] Could not verify the account: %q", err)

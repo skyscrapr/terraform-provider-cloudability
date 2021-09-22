@@ -7,37 +7,38 @@ go 1.13
 // replace github.com/terraform-providers/terraform-provider-aws => ../terraform-provider-aws
 
 require (
-	cloud.google.com/go v0.61.0 // indirect
+	cloud.google.com/go v0.95.0 // indirect
+	cloud.google.com/go/storage v1.16.1 // indirect
+	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/apparentlymart/go-cidr v1.1.0 // indirect
-	github.com/aws/aws-sdk-go v1.33.7 // indirect
-	github.com/bitly/go-simplejson v0.5.0 // indirect
-	github.com/fatih/color v1.9.0 // indirect
-	github.com/hashicorp/go-getter v1.4.1 // indirect
-	github.com/hashicorp/go-hclog v0.14.1 // indirect
-	github.com/hashicorp/go-multierror v1.1.0 // indirect
-	github.com/hashicorp/go-plugin v1.3.0 // indirect
+	github.com/aws/aws-sdk-go v1.40.46 // indirect
+	github.com/fatih/color v1.13.0 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/google/uuid v1.3.0 // indirect
+	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-getter v1.5.8 // indirect
+	github.com/hashicorp/go-hclog v0.16.2 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/hashicorp/go-plugin v1.4.3 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
-	github.com/hashicorp/go-version v1.2.1 // indirect
-	github.com/hashicorp/hcl/v2 v2.6.0 // indirect
-	github.com/hashicorp/terraform-plugin-sdk v1.15.0
-	github.com/hashicorp/terraform-svchost v0.0.0-20191119180714-d2e4933b9136 // indirect
-	github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce // indirect
-	github.com/mattn/go-colorable v0.1.7 // indirect
-	github.com/mitchellh/cli v1.1.1 // indirect
+	github.com/hashicorp/hcl/v2 v2.10.1 // indirect
+	github.com/hashicorp/terraform-plugin-sdk v1.17.2
+	github.com/hashicorp/yamux v0.0.0-20210826001029-26ff87cf9493 // indirect
+	github.com/klauspost/compress v1.13.6 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
-	github.com/mitchellh/mapstructure v1.3.2 // indirect
+	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
-	github.com/skyscrapr/cloudability-sdk-go v0.0.3
-	github.com/spf13/afero v1.3.2 // indirect
-	github.com/ulikunitz/xz v0.5.7 // indirect
-	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
-	github.com/zclconf/go-cty v1.5.1 // indirect
-	github.com/zclconf/go-cty-yaml v1.0.2 // indirect
-	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899 // indirect
-	golang.org/x/exp v0.0.0-20200513190911-00229845015e // indirect
-	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
-	golang.org/x/tools v0.0.0-20200717024301-6ddee64345a6 // indirect
-	google.golang.org/genproto v0.0.0-20200715011427-11fb19a81f2c // indirect
+	github.com/skyscrapr/cloudability-sdk-go v0.0.4
+	github.com/spf13/afero v1.6.0 // indirect
+	github.com/ulikunitz/xz v0.5.10 // indirect
+	github.com/vmihailenco/tagparser v0.1.2 // indirect
+	github.com/zclconf/go-cty v1.9.1 // indirect
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/net v0.0.0-20210917221730-978cfadd31cf // indirect
+	golang.org/x/sys v0.0.0-20210921065528-437939a70204 // indirect
+	golang.org/x/text v0.3.7 // indirect
 )

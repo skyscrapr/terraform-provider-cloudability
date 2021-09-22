@@ -8,7 +8,7 @@ func flattenVerification(in *cloudability.Verification) []map[string]interface{}
 	if in == nil {
 		return nil
 	}
-	var out = make([]map[string]interface{}, 1, 1)
+	var out = make([]map[string]interface{}, 1)
 	m := make(map[string]interface{})
 	m["state"] = in.State
 	m["last_verification_attempted_at"] = in.LastVerificationAttemptedAt
@@ -21,7 +21,7 @@ func flattenAuthorization(in *cloudability.Authorization) []map[string]interface
 	if in == nil {
 		return nil
 	}
-	var out = make([]map[string]interface{}, 1, 1)
+	var out = make([]map[string]interface{}, 1)
 	m := make(map[string]interface{})
 	m["type"] = in.Type
 	m["role_name"] = in.RoleName
@@ -31,7 +31,7 @@ func flattenAuthorization(in *cloudability.Authorization) []map[string]interface
 }
 
 func flattenStatements(in []*cloudability.BusinessMappingStatement) []map[string]interface{} {
-	var out = make([]map[string]interface{}, len(in), len(in))
+	var out = make([]map[string]interface{}, len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
 		m["match_expression"] = v.MatchExpression
@@ -54,7 +54,7 @@ func inflateStatements(in []interface{}) []*cloudability.BusinessMappingStatemen
 }
 
 func flattenFilters(in []*cloudability.ViewFilter) []map[string]interface{} {
-	var out = make([]map[string]interface{}, len(in), len(in))
+	var out = make([]map[string]interface{}, len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
 		m["field"] = v.Field

@@ -7,10 +7,10 @@ import (
 )
 
 // Need to document this function and add tests
-func retry(attempts int, sleep time.Duration, f func() (error, bool)) (err error) {
+func retry(attempts int, sleep time.Duration, f func() (bool, error)) (err error) {
 	var exit bool
 	for i := 0; ; i++ {
-		err, exit = f()
+		exit, err = f()
 		if exit {
 			return err
 		}
