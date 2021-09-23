@@ -61,7 +61,6 @@ func resourceMasterAccount() *schema.Resource {
 			"authorization": {
 				Type:     schema.TypeSet,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {

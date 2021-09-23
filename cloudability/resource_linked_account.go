@@ -37,7 +37,6 @@ func resourceLinkedAccount() *schema.Resource {
 			"verification": {
 				Type:     schema.TypeSet,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"state": {
