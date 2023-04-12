@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 	"log"
+	"time"
 )
 
 func resourceMasterAccount() *schema.Resource {
@@ -123,6 +124,11 @@ func resourceMasterAccount() *schema.Resource {
 				Description: "Cost and usage report prefix",
 			},
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(1 * time.Minute),
+			Read: schema.DefaultTimeout(1 * time.Minute),
+			Delete: schema.DefaultTimeout(1 * time.Minute),
+		},
 	}
 }
 
@@ -135,6 +141,7 @@ func resourceMasterAccountCreate(d *schema.ResourceData, meta interface{}) error
 	reportPrefix := d.Get("report_prefix").(string)
 
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Create"))
 	log.Printf("[DEBUG] resourceAccountCreate NewAccount [account_id: %q]", accountID)
 	params := &cloudability.NewMasterAccountParams{
 		NewLinkedAccountParams: &cloudability.NewLinkedAccountParams{
@@ -156,6 +163,7 @@ func resourceMasterAccountCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Read"))
 	vendorKey := d.Get("vendor_key").(string)
 	accountID := d.Get("vendor_account_id").(string)
 	log.Printf("[DEBUG] resourceMasterAccountRead [account_id: %q]", accountID)
@@ -164,7 +172,7 @@ func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 		// Ignore 404 errors (No account found)
 		var apiError cloudability.APIError
 		jsonErr := json.Unmarshal([]byte(err.Error()), &apiError)
-		if jsonErr == nil && apiError.Error.Code == 404 {
+		if jsonErr == nil && apiError.Error.Status == 404 {
 			log.Print("[DEBUG] resourceMasterAccountRead Account not found. Ignoring")
 			err = nil
 		} else {
@@ -198,6 +206,7 @@ func resourceMasterAccountRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMasterAccountDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Delete"))
 	vendorKey := d.Get("vendor_key").(string)
 	accountID := d.Get("vendor_account_id").(string)
 	err := client.Vendors().DeleteAccount(vendorKey, accountID)

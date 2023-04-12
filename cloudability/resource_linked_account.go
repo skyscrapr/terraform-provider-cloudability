@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 	"log"
+	"time"
 )
 
 func resourceLinkedAccount() *schema.Resource {
@@ -105,6 +106,11 @@ func resourceLinkedAccount() *schema.Resource {
 				Description: "Date timestamp corresponding to cloudability credential creation time",
 			},
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(1 * time.Minute),
+			Read: schema.DefaultTimeout(1 * time.Minute),
+			Delete: schema.DefaultTimeout(1 * time.Minute),
+		},
 	}
 }
 
@@ -114,6 +120,7 @@ func resourceLinkedAccountCreate(d *schema.ResourceData, meta interface{}) error
 	credType := d.Get("type").(string)
 
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Create"))
 	log.Printf("[DEBUG] resourceAccountCreate NewAccount [account_id: %q]", accountID)
 	params := &cloudability.NewLinkedAccountParams{
 		VendorAccountID: accountID,
@@ -130,13 +137,14 @@ func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 	vendorKey := d.Get("vendor_key").(string)
 	accountID := d.Get("vendor_account_id").(string)
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Read"))
 	log.Printf("[DEBUG] resourceLinkedAccountRead [account_id: %q]", accountID)
 	account, err := client.Vendors().GetAccount(vendorKey, accountID)
 	if err != nil {
 		// Ignore 404 errors (No account found)
 		var apiError cloudability.APIError
 		jsonErr := json.Unmarshal([]byte(err.Error()), &apiError)
-		if jsonErr == nil && apiError.Error.Code == 404 {
+		if jsonErr == nil && apiError.Error.Status == 404 {
 			log.Print("[DEBUG] resourceLinkedAccountRead Account not found. Ignoring")
 			err = nil
 		} else {
@@ -160,6 +168,7 @@ func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceLinkedAccountDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Delete"))
 	vendorKey := d.Get("vendor_key").(string)
 	accountID := d.Get("vendor_account_id").(string)
 	err := client.Vendors().DeleteAccount(vendorKey, accountID)
