@@ -5,6 +5,7 @@ import (
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 	"log"
 	"strconv"
+	"time"
 )
 
 func resourceBusinessMapping() *schema.Resource {
@@ -57,11 +58,18 @@ func resourceBusinessMapping() *schema.Resource {
 				Computed: true,
 			},
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(1 * time.Minute),
+			Read: schema.DefaultTimeout(1 * time.Minute),
+			Update: schema.DefaultTimeout(1 * time.Minute),
+			Delete: schema.DefaultTimeout(1 * time.Minute),
+		},
 	}
 }
 
 func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Create"))
 	businessMapping := &cloudability.BusinessMapping{
 		Name:         d.Get("name").(string),
 		Kind:         d.Get("kind").(string),
@@ -79,6 +87,7 @@ func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Read"))
 	index, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return err
@@ -102,6 +111,7 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Update"))
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return nil
@@ -122,6 +132,7 @@ func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceBusinessMappingDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
+	client.SetTimeout(d.Timeout("Delete"))
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return nil
