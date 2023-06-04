@@ -10,9 +10,9 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"apikey": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "The apikey for API operations",
-				DefaultFunc: schema.EnvDefaultFunc("APIKEY", nil),
+				DefaultFunc: schema.EnvDefaultFunc("CLOUDABILITY_APIKEY", nil),
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{

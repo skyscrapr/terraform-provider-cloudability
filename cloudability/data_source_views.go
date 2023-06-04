@@ -22,15 +22,14 @@ func dataSourceViews() *schema.Resource {
 							Computed:    true,
 							Description: "The name of the view as it will appear to the end users",
 						},
-						// TODO:
-						// "shared_with_users": {
-						// 	Type: schema.TypeList,
-						// 	Optional: true,
-						// 	Elem: &schema.Schema {
-						// 		Type: schema.TypeString,
-						// 	},
-						// 	Description: "The discrete list of users (by their unique identifier) that the view should be shared with",
-						// },
+						"shared_with_users": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Description: "The discrete list of users (by their unique identifier) that the view should be shared with",
+						},
 						"shared_with_organization": {
 							Type:        schema.TypeBool,
 							Computed:    true,
@@ -41,7 +40,7 @@ func dataSourceViews() *schema.Resource {
 							Computed:    true,
 							Description: "Unique identifier for the user who created the view",
 						},
-						"filter": {
+						"filters": {
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem: &schema.Resource{
@@ -81,7 +80,7 @@ func dataSourceViewsRead(d *schema.ResourceData, meta interface{}) error {
 		for i, view := range views {
 			m := make(map[string]interface{})
 			m["title"] = view.Title
-			// m["shared_with_users"] = view.SharedWithUsers
+			m["shared_with_users"] = view.SharedWithUsers
 			m["shared_with_organization"] = view.SharedWithOrganization
 			m["owner_id"] = view.OwnerID
 			m["filters"] = flattenFilters(view.Filters)
