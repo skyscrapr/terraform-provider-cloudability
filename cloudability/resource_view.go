@@ -21,28 +21,27 @@ func resourceView() *schema.Resource {
 				Required:    true,
 				Description: "The name of the view as it will appear to the end users",
 			},
-			// TODO:
-			// "shared_with_users": {
-			// 	Type: schema.TypeList,
-			// 	Optional: true,
-			// 	Elem: &schema.Schema {
-			// 		Type: schema.TypeString,
-			// 	},
-			// 	Description: "The discrete list of users (by their unique identifier) that the view should be shared with",
-			// },
+			"shared_with_users": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Description: "The discrete list of users (by their unique identifier) that the view should be shared with",
+			},
 			"shared_with_organization": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
 				Description: "Whether the view should be accessible to the entire organization",
 			},
-			// "owner_id": {
-			// 	Type:        schema.TypeString,
-			// 	Optional:    true,
-			// 	Computed:    true,
-			// 	Description: "Unique identifier for the user who created the view",
-			// },
-			"filter": {
+			"owner_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Unique identifier for the user who created the view",
+			},
+			"filters": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
@@ -73,8 +72,8 @@ func resourceViewCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	log.Printf("[DEBUG] resourceViewCreate [title]: %q]", title)
 	view := &cloudability.View{
-		Title: title,
-		// SharedWithUsers: todo,
+		Title:                  title,
+		SharedWithUsers:        d.Get("shared_with_users").([]string),
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),
 		Filters:                inflateFilters(d.Get("filter").([]interface{})),
 	}
@@ -95,9 +94,9 @@ func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 
 	if view != nil {
 		d.Set("title", view.Title)
-		// d.Set("shared_with_users", view.SharedWithUsers)
+		d.Set("shared_with_users", view.SharedWithUsers)
 		d.Set("shared_with_organization", view.SharedWithOrganization)
-		// d.Set("owner_id", view.OwnerID)
+		d.Set("owner_id", view.OwnerID)
 		d.Set("filters", flattenFilters(view.Filters))
 		d.SetId(view.ID)
 	}
@@ -107,9 +106,9 @@ func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	view := &cloudability.View{
-		ID:    d.Id(),
-		Title: d.Get("title").(string),
-		// SharedWithUsers: d.Get("shared_with_users").(string),
+		ID:                     d.Id(),
+		Title:                  d.Get("title").(string),
+		SharedWithUsers:        d.Get("shared_with_users").([]string),
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),
 		Filters:                inflateFilters(d.Get("filter").([]interface{})),
 	}
