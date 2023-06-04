@@ -17,6 +17,8 @@ func Provider() *schema.Provider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"cloudability_account_verification": dataSourceAccountVerification(),
+			"cloudability_views":                dataSourceViews(),
+			"cloudability_view":                 dataSourceView(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"cloudability_master_account":   resourceMasterAccount(),

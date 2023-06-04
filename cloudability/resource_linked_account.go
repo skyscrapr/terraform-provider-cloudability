@@ -108,7 +108,7 @@ func resourceLinkedAccount() *schema.Resource {
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(1 * time.Minute),
-			Read: schema.DefaultTimeout(1 * time.Minute),
+			Read:   schema.DefaultTimeout(1 * time.Minute),
 			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
 	}
