@@ -10,7 +10,7 @@
 
 ## Installing the Provider
 
-The provider is now in the offical [![community provider list for terraform](https://www.terraform.io/docs/providers/type/community-index.html)
+The provider is registered in the official ![terraform registry](https://registry.terraform.io/providers/skyscrapr/cloudability/latest) 
 
 This enables the provider to be auto-installed when you run ```terraform init```
 
