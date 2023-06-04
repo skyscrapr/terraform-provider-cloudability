@@ -1,6 +1,7 @@
 # Skyscrapr Terraform Provider for Cloudability
 
 [![Build Status](https://travis-ci.com/skyscrapr/terraform-provider-cloudability.svg?branch=master)](https://travis-ci.com/skyscrapr/terraform-provider-cloudability)
+[![Go Report Card](https://goreportcard.com/badge/github.com/skyscrapr/terraform-provider-cloudability)](https://goreportcard.com/report/github.com/skyscrapr/terraform-provider-cloudability)
 
 ## Requirements
 
