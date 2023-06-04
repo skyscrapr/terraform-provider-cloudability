@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/skyscrapr/terraform-provider-cloudability.svg?branch=master)](https://travis-ci.com/skyscrapr/terraform-provider-cloudability)
 [![Go Report Card](https://goreportcard.com/badge/github.com/skyscrapr/terraform-provider-cloudability)](https://goreportcard.com/report/github.com/skyscrapr/terraform-provider-cloudability)
+![License](https://img.shields.io/dub/l/vibe-d.svg)
 
 ## Requirements
 
@@ -11,7 +12,7 @@
 
 ## Installing the Provider
 
-The provider is registered in the official ![terraform registry](https://registry.terraform.io/providers/skyscrapr/cloudability/latest) 
+The provider is registered in the official [terraform registry](https://registry.terraform.io/providers/skyscrapr/cloudability/latest) 
 
 This enables the provider to be auto-installed when you run ```terraform init```
 
