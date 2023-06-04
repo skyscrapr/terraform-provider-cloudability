@@ -17,6 +17,11 @@ func dataSourceViews() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Unique identifier for the View object.",
+						},
 						"title": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -79,6 +84,7 @@ func dataSourceViewsRead(d *schema.ResourceData, meta interface{}) error {
 		var data = make([]map[string]interface{}, len(views))
 		for i, view := range views {
 			m := make(map[string]interface{})
+			m["id"] = view.ID
 			m["title"] = view.Title
 			m["shared_with_users"] = view.SharedWithUsers
 			m["shared_with_organization"] = view.SharedWithOrganization
