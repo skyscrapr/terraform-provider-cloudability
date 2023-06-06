@@ -77,3 +77,11 @@ func inflateFilters(in []interface{}) []*cloudability.ViewFilter {
 	}
 	return out
 }
+
+func inflateStrings(in []interface{}) []string {
+	out := make([]string, len(in))
+	for i, s := range in {
+		out[i] = s.(string)
+	}
+	return out
+}

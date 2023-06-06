@@ -73,7 +73,7 @@ func resourceViewCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] resourceViewCreate [title]: %q]", title)
 	view := &cloudability.View{
 		Title:                  title,
-		SharedWithUsers:        d.Get("shared_with_users").([]string),
+		SharedWithUsers:        inflateStrings(d.Get("shared_with_users").([]interface{})),
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),
 		Filters:                inflateFilters(d.Get("filter").([]interface{})),
 	}
