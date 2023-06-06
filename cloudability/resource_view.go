@@ -108,7 +108,7 @@ func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 	view := &cloudability.View{
 		ID:                     d.Id(),
 		Title:                  d.Get("title").(string),
-		SharedWithUsers:        d.Get("shared_with_users").([]string),
+		SharedWithUsers:        inflateStrings(d.Get("shared_with_users").([]interface{})),
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),
 		Filters:                inflateFilters(d.Get("filter").([]interface{})),
 	}
