@@ -41,7 +41,7 @@ func resourceView() *schema.Resource {
 				Computed:    true,
 				Description: "Unique identifier for the user who created the view",
 			},
-			"filters": {
+			"filter": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
