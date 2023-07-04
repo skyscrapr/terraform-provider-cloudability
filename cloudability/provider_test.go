@@ -7,10 +7,14 @@ import (
 )
 
 var testAccProvider *schema.Provider
+var testAccProviders map[string]*schema.Provider
 var testAccProviderFactories map[string]func() (*schema.Provider, error)
 
 func init() {
 	testAccProvider = Provider()
+	testAccProviders = map[string]*schema.Provider{
+		"cloudability": testAccProvider,
+	}
 	testAccProviderFactories = map[string]func() (*schema.Provider, error){
 		"cloudability": func() (*schema.Provider, error) { return testAccProvider, nil },
 	}

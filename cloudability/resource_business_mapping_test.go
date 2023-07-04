@@ -1,61 +1,64 @@
 package cloudability
 
-// import (
-// 	"os"
-// 	"testing"
-// )
+import (
+	"fmt"
+	"testing"
 
-// func TestResourceCloudabilityBusinessMappingRead(t *testing.T) {
-// 	apikey, _ := os.LookupEnv("CLOUDABILTIY_APIKEY")
-// 	config := Config{
-// 		APIKey: apikey,
-// 	}
-// 	resouce := resourceBusinessMapping()
-// 	d := resouce.Data(nil)
-// 	d.SetId("1")
-// 	c := config.Client()
-// 	resourceBusinessMappingRead(d, c)
-// }
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+)
 
-// func TestResourceCloudabilityBusinessMappingCreate(t *testing.T) {
-// 	apikey, _ := os.LookupEnv("CLOUDABILTIY_APIKEY")
-// 	config := Config{
-// 		ApiKey: apikey,
-// 	}
-// 	resource := resourceBusinessMapping()
-// 	d := resource.Data(nil)
-// 	d.Set("name", "Cloud Service Provider")
-// 	d.Set("kind", "BUSINESS_DIMENSION")
-// 	d.Set("default_value", "Unknown Cloud Service Provider")
-// 	statements := []map[string]interface{}{
-// 		{
-// 			"match_expression": "DIMENSION['vendor'] == 'Amazon'",
-// 			"value_expression": "'Amazon'",
-// 		},
-// 		{
-// 			"match_expression": "DIMENSION['vendor'] == 'Azure'",
-// 			"value_expression": "'Azure'",
-// 		},
-// 	}
-// 	d.Set("statement", statements)
-// 	c := config.Client()
-// 	err := resourceBusinessMappingCreate(d, c)
-// 	if err != nil {
-// 		t.Error(err.Error())
-// 	}
-// }
+func TestAccBusinessMappingResource(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			// Create and Read testing
+			{
+				Config: testAccBusinessMappingResourceConfig("1"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("cloudability_business_mapping.test", "id"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test", "name", "test_1"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test", "kind", "BUSINESS_DIMENSION"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test", "default_value", "Unknown"),
+				),
+			},
+			// ImportState testing
+			{
+				ResourceName:      "cloudability_business_mapping.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// This is not normally necessary, but is here because this
+				// example code does not have an actual upstream service.
+				// Once the Read method is able to refresh information from
+				// the upstream service, this can be removed.
+				// ImportStateVerifyIgnore: []string{"attrib"},
+			},
+			// Update and Read testing
+			{
+				Config: testAccBusinessMappingResourceConfig("2"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test", "name", "test_2"),
+				),
+			},
+			// Delete testing automatically occurs in TestCase
+		},
+	})
+}
 
-// func TestResourceCloudabilityBusinessMappingDelete(t *testing.T) {
-// 	apikey, _ := os.LookupEnv("CLOUDABILTIY_APIKEY")
-// 	config := Config{
-// 		ApiKey: apikey,
-// 	}
-// 	resource := resourceBusinessMapping()
-// 	d := resource.Data(nil)
-// 	d.SetId("1")
-// 	c := config.Client()
-// 	err := resourceBusinessMappingDelete(d, c)
-// 	if err != nil {
-// 		t.Error(err.Error())
-// 	}
-// }
+func testAccBusinessMappingResourceConfig(name string) string {
+	return fmt.Sprintf(`	
+resource "cloudability_business_mapping" "test" {
+	name = "test_%s"
+	default_value = "Unknown"
+	kind = "BUSINESS_DIMENSION"
+	statement {
+		match_expression = "DIMENSION['vendor'] == 'vendor_1'"
+		value_expression = "'Vendor1'"
+	}
+	statement {
+		match_expression = "DIMENSION['vendor'] == 'vendor_2'"
+		value_expression = "'Vendor2'"
+	}
+}
+`, name)
+}

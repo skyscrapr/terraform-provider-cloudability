@@ -1,9 +1,13 @@
 package cloudability
 
 import (
+	"fmt"
+	"log"
+	"reflect"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
-	"log"
 )
 
 func resourceView() *schema.Resource {
@@ -63,6 +67,9 @@ func resourceView() *schema.Resource {
 				Description: "list of filter objects. If multiple filters are applied on the same dimension they are OR'd, however if they are on different dimensions they are AND'd. See below regarding filter specifics.",
 			},
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Update: schema.DefaultTimeout(1 * time.Minute),
+		},
 	}
 }
 
@@ -97,7 +104,7 @@ func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("shared_with_users", view.SharedWithUsers)
 		d.Set("shared_with_organization", view.SharedWithOrganization)
 		d.Set("owner_id", view.OwnerID)
-		d.Set("filters", flattenFilters(view.Filters))
+		d.Set("filter", flattenFilters(view.Filters))
 		d.SetId(view.ID)
 	}
 	return nil
@@ -116,10 +123,38 @@ func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	// Need to configure via Timeout.
+	retryCount := 60
+	retryWait := 1
+	err = retry(retryCount, time.Duration(retryWait)*time.Second, func() (exit bool, err error) {
+		view, err = client.Views().GetView(d.Id())
+		if err != nil {
+			return true, err
+		}
+		if !viewEqual(view, d) {
+			log.Printf("[DEBUG] Waiting for eventual consistency.")
+			err = fmt.Errorf("view update not successful")
+			return false, err
+		}
+		return true, nil
+	})
+	if err != nil {
+		log.Printf("[DEBUG] Could not update the view: %q", err)
+		return err
+	}
+
 	return resourceViewRead(d, meta)
 }
 
 func resourceViewDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	return client.Views().DeleteView(d.Id())
+}
+
+func viewEqual(view *cloudability.View, d *schema.ResourceData) bool {
+	return view.Title != d.Get("title").(string) ||
+		view.SharedWithOrganization != d.Get("shared_with_organization").(bool) ||
+		reflect.DeepEqual(view.SharedWithUsers, inflateStrings(d.Get("shared_with_users").([]interface{}))) ||
+		reflect.DeepEqual(view.Filters, inflateFilters(d.Get("filter").([]interface{})))
 }
