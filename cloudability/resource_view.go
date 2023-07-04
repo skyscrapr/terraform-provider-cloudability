@@ -1,11 +1,14 @@
 package cloudability
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	tfretry "github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
@@ -125,19 +128,20 @@ func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Need to configure via Timeout.
-	retryCount := 60
-	retryWait := 1
-	err = retry(retryCount, time.Duration(retryWait)*time.Second, func() (exit bool, err error) {
+	// HACK: Could not implement timeouts due to error
+	ctx := context.TODO()
+	updateTimeout := 1 * time.Minute
+	err = tfretry.RetryContext(ctx, updateTimeout, func() *tfretry.RetryError {
 		view, err = client.Views().GetView(d.Id())
 		if err != nil {
-			return true, err
+			return tfretry.NonRetryableError(err)
 		}
 		if !viewEqual(view, d) {
-			log.Printf("[DEBUG] Waiting for eventual consistency.")
 			err = fmt.Errorf("view update not successful")
-			return false, err
+			tflog.Info(ctx, fmt.Sprintf("Waiting for eventual consistency - Retrying... %s", err))
+			return tfretry.RetryableError(err)
 		}
-		return true, nil
+		return nil
 	})
 	if err != nil {
 		log.Printf("[DEBUG] Could not update the view: %q", err)
@@ -155,6 +159,6 @@ func resourceViewDelete(d *schema.ResourceData, meta interface{}) error {
 func viewEqual(view *cloudability.View, d *schema.ResourceData) bool {
 	return view.Title != d.Get("title").(string) ||
 		view.SharedWithOrganization != d.Get("shared_with_organization").(bool) ||
-		reflect.DeepEqual(view.SharedWithUsers, inflateStrings(d.Get("shared_with_users").([]interface{}))) ||
-		reflect.DeepEqual(view.Filters, inflateFilters(d.Get("filter").([]interface{})))
+		!reflect.DeepEqual(view.SharedWithUsers, inflateStrings(d.Get("shared_with_users").([]interface{}))) ||
+		!reflect.DeepEqual(view.Filters, inflateFilters(d.Get("filter").([]interface{})))
 }
