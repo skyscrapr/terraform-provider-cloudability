@@ -40,6 +40,24 @@ func TestAccBusinessMappingResource(t *testing.T) {
 					resource.TestCheckResourceAttr("cloudability_business_mapping.test", "name", "test_2"),
 				),
 			},
+			// Multiple business mappings at once
+			{
+				Config: testAccBusinessMappingMultipleConfig(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("cloudability_business_mapping.test1", "id"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test1", "name", "test__1"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test1", "kind", "BUSINESS_DIMENSION"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test1", "default_value", "Unknown1"),
+					resource.TestCheckResourceAttrSet("cloudability_business_mapping.test2", "id"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test2", "name", "test__2"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test2", "kind", "BUSINESS_DIMENSION"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test2", "default_value", "Unknown2"),
+					resource.TestCheckResourceAttrSet("cloudability_business_mapping.test3", "id"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test3", "name", "test__3"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test3", "kind", "BUSINESS_DIMENSION"),
+					resource.TestCheckResourceAttr("cloudability_business_mapping.test3", "default_value", "Unknown3"),
+				),
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})
@@ -61,4 +79,48 @@ resource "cloudability_business_mapping" "test" {
 	}
 }
 `, name)
+}
+
+func testAccBusinessMappingMultipleConfig() string {
+	return `	
+resource "cloudability_business_mapping" "test1" {
+	name = "test__1"
+	default_value = "Unknown1"
+	kind = "BUSINESS_DIMENSION"
+	statement {
+		match_expression = "DIMENSION['vendor'] == 'vendor1_1'"
+		value_expression = "'Vendor1_1'"
+	}
+	statement {
+		match_expression = "DIMENSION['vendor'] == 'vendor1_2'"
+		value_expression = "'Vendor1_2'"
+	}
+}
+resource "cloudability_business_mapping" "test2" {
+	name = "test__2"
+	default_value = "Unknown2"
+	kind = "BUSINESS_DIMENSION"
+	statement {
+		match_expression = "DIMENSION['vendor'] == 'vendor2_1'"
+		value_expression = "'Vendor2_1'"
+	}
+	statement {
+		match_expression = "DIMENSION['vendor'] == 'vendor2_2'"
+		value_expression = "'Vendor2_2'"
+	}
+}
+resource "cloudability_business_mapping" "test3" {
+	name = "test__3"
+	default_value = "Unknown3"
+	kind = "BUSINESS_DIMENSION"
+	statement {
+		match_expression = "DIMENSION['vendor'] == 'vendor3_1'"
+		value_expression = "'Vendor3_1'"
+	}
+	statement {
+		match_expression = "DIMENSION['vendor'] == 'vendor3_2'"
+		value_expression = "'Vendor3_2'"
+	}
+}
+`
 }
