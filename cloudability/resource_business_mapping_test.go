@@ -9,6 +9,12 @@ import (
 
 func TestAccBusinessMappingResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {
+				// VersionConstraint: "...", // last version of old schema version
+				Source:            "registry.terraform.io/hashicorp/time",
+			},
+		},
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -64,7 +70,7 @@ func TestAccBusinessMappingResource(t *testing.T) {
 }
 
 func testAccBusinessMappingResourceConfig(name string) string {
-	return fmt.Sprintf(`	
+	return fmt.Sprintf(`
 resource "cloudability_business_mapping" "test" {
 	name = "test_%s"
 	default_value = "Unknown"
@@ -82,7 +88,11 @@ resource "cloudability_business_mapping" "test" {
 }
 
 func testAccBusinessMappingMultipleConfig() string {
-	return `	
+	return `
+provider "time" {
+	version = "~> 0.7"
+}
+
 resource "cloudability_business_mapping" "test1" {
 	name = "test__1"
 	default_value = "Unknown1"
@@ -96,6 +106,12 @@ resource "cloudability_business_mapping" "test1" {
 		value_expression = "'Vendor1_2'"
 	}
 }
+
+resource "time_sleep" "wait_test1" {
+	depends_on = [cloudability_business_mapping.test1]
+	create_duration = "2s"
+}
+
 resource "cloudability_business_mapping" "test2" {
 	name = "test__2"
 	default_value = "Unknown2"
@@ -108,7 +124,14 @@ resource "cloudability_business_mapping" "test2" {
 		match_expression = "DIMENSION['vendor'] == 'vendor2_2'"
 		value_expression = "'Vendor2_2'"
 	}
+	depends_on = [time_sleep.wait_test1]
 }
+
+resource "time_sleep" "wait_test2" {
+	depends_on = [cloudability_business_mapping.test2]
+	create_duration = "2s"
+}
+
 resource "cloudability_business_mapping" "test3" {
 	name = "test__3"
 	default_value = "Unknown3"
@@ -121,6 +144,7 @@ resource "cloudability_business_mapping" "test3" {
 		match_expression = "DIMENSION['vendor'] == 'vendor3_2'"
 		value_expression = "'Vendor3_2'"
 	}
+	depends_on = [time_sleep.wait_test2]
 }
 `
 }
