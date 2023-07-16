@@ -14,8 +14,8 @@ func TestAccViewsDataSource(t *testing.T) {
 			// Read testing
 			{
 				Config: testAccViewsDataSourceConfig,
-				Check:  resource.ComposeAggregateTestCheckFunc(
-				// resource.TestCheckResourceAttr("data.cloudability_views.test", "id", "testid"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.cloudability_views.test", "id"),
 				),
 			},
 		},
