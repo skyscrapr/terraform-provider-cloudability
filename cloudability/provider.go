@@ -25,6 +25,7 @@ func Provider() *schema.Provider {
 			"cloudability_master_account":   resourceMasterAccount(),
 			"cloudability_linked_account":   resourceLinkedAccount(),
 			"cloudability_business_mapping": resourceBusinessMapping(),
+			"cloudability_business_metric":  resourceBusinessMetric(),
 			"cloudability_view":             resourceView(),
 		},
 		ConfigureFunc: providerConfigure,
