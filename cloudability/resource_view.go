@@ -20,9 +20,14 @@ func resourceView() *schema.Resource {
 		Update: resourceViewUpdate,
 		Delete: resourceViewDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Unique identifier for the View object.",
+			},
 			"title": {
 				Type:        schema.TypeString,
 				Required:    true,

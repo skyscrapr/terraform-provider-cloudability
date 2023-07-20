@@ -9,6 +9,11 @@ func dataSourceView() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceViewRead,
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Unique identifier for the View object.",
+			},
 			"title": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -16,7 +21,7 @@ func dataSourceView() *schema.Resource {
 			},
 			"shared_with_users": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -59,7 +64,7 @@ func dataSourceView() *schema.Resource {
 
 func dataSourceViewRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
-	view, err := client.Views().GetView(d.Id())
+	view, err := client.Views().GetView(d.Get("id").(string))
 	if err != nil {
 		return err
 	}

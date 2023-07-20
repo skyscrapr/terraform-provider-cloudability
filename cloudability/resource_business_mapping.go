@@ -1,11 +1,15 @@
 package cloudability
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
-	"log"
+	"context"
+	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 )
 
 func resourceBusinessMapping() *schema.Resource {
@@ -15,7 +19,7 @@ func resourceBusinessMapping() *schema.Resource {
 		Update: resourceBusinessMappingUpdate,
 		Delete: resourceBusinessMappingDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"index": {
@@ -70,18 +74,20 @@ func resourceBusinessMapping() *schema.Resource {
 func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	client.SetTimeout(d.Timeout("Create"))
-	businessMapping := &cloudability.BusinessMapping{
+	payload := cloudability.BusinessMapping{
 		Name:         d.Get("name").(string),
 		Kind:         d.Get("kind").(string),
 		DefaultValue: d.Get("default_value").(string),
 		Statements:   inflateStatements(d.Get("statement").([]interface{})),
 	}
-	newBusinessMapping, err := client.BusinessMappings().NewBusinessMapping(businessMapping)
+	businessMapping, err := client.BusinessMappings().NewBusinessMapping(&payload)
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] New business mapping created with index: %d", newBusinessMapping.Index)
-	d.SetId(strconv.Itoa(newBusinessMapping.Index))
+	ctx := context.TODO()
+	tflog.Info(ctx, fmt.Sprintf("New business mapping created with index: %d", businessMapping.Index))
+	d.SetId(strconv.Itoa(businessMapping.Index))
+	time.Sleep(2 * time.Second)
 	return resourceBusinessMappingRead(d, meta)
 }
 
@@ -92,6 +98,8 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+	ctx := context.TODO()
+	tflog.Info(ctx, fmt.Sprintf("Reading business mapping with index: %d", index))
 	businessMapping, err := client.BusinessMappings().GetBusinessMapping(index)
 	if err != nil {
 		return err
@@ -116,17 +124,19 @@ func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return nil
 	}
-	businessMapping := &cloudability.BusinessMapping{
-		Index:        id,
+	payload := cloudability.BusinessMapping{
+		Index:        d.Get("index").(int),
 		Kind:         d.Get("kind").(string),
 		Name:         d.Get("name").(string),
 		DefaultValue: d.Get("default_value").(string),
 		Statements:   inflateStatements(d.Get("statement").([]interface{})),
 	}
-	err = client.BusinessMappings().UpdateBusinessMapping(businessMapping)
+	err = client.BusinessMappings().UpdateBusinessMapping(&payload)
 	if err != nil {
 		return err
 	}
+	ctx := context.TODO()
+	tflog.Info(ctx, fmt.Sprintf("Updating business mapping with index: %d", id))
 	return resourceBusinessMappingRead(d, meta)
 }
 
@@ -135,7 +145,20 @@ func resourceBusinessMappingDelete(d *schema.ResourceData, meta interface{}) err
 	client.SetTimeout(d.Timeout("Delete"))
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return nil
+		return err
 	}
-	return client.BusinessMappings().DeleteBusinessMapping(id)
+	ctx := context.TODO()
+	tflog.Info(ctx, fmt.Sprintf("Deleting business mapping with index: %d", id))
+	err = client.BusinessMappings().DeleteBusinessMapping(id)
+	if err != nil {
+		// Ignore 404 errors (No resource found)
+		var apiError cloudability.APIError
+		jsonErr := json.Unmarshal([]byte(err.Error()), &apiError)
+		if jsonErr == nil && apiError.Error.Status == 404 {
+			ctx := context.TODO()
+			tflog.Info(ctx, "resourceBusinessMappingDelete Resource not found. Ignoring")
+			return nil
+		}
+	}
+	return err
 }

@@ -14,7 +14,7 @@ func resourceMasterAccount() *schema.Resource {
 		Read:   resourceMasterAccountRead,
 		Delete: resourceMasterAccountDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"vendor_account_name": {
