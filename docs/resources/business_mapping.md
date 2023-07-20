@@ -1,6 +1,7 @@
 # Business Mapping Resource
 
 Business Mapping is an activity that allows you to map your cloud cost and usage to custom dimensions and custom metrics that are important to report on within your organization.
+This resource maps to BUSINESS_DIMENSION Business Mapping.
 
 ## Example Usage
 

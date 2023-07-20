@@ -80,12 +80,12 @@ func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) err
 		DefaultValue: d.Get("default_value").(string),
 		Statements:   inflateStatements(d.Get("statement").([]interface{})),
 	}
-	businessMapping, err := client.BusinessMappings().NewBusinessMapping(&payload)
+	businessMapping, err := client.BusinessMappings().NewBusinessDimension(&payload)
 	if err != nil {
 		return err
 	}
 	ctx := context.TODO()
-	tflog.Info(ctx, fmt.Sprintf("New business mapping created with index: %d", businessMapping.Index))
+	tflog.Info(ctx, fmt.Sprintf("New business dimension created with index: %d", businessMapping.Index))
 	d.SetId(strconv.Itoa(businessMapping.Index))
 	time.Sleep(2 * time.Second)
 	return resourceBusinessMappingRead(d, meta)
@@ -99,8 +99,8 @@ func resourceBusinessMappingRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	ctx := context.TODO()
-	tflog.Info(ctx, fmt.Sprintf("Reading business mapping with index: %d", index))
-	businessMapping, err := client.BusinessMappings().GetBusinessMapping(index)
+	tflog.Info(ctx, fmt.Sprintf("Reading business dimension with index: %d", index))
+	businessMapping, err := client.BusinessMappings().GetBusinessDimension(index)
 	if err != nil {
 		return err
 	}
@@ -131,12 +131,12 @@ func resourceBusinessMappingUpdate(d *schema.ResourceData, meta interface{}) err
 		DefaultValue: d.Get("default_value").(string),
 		Statements:   inflateStatements(d.Get("statement").([]interface{})),
 	}
-	err = client.BusinessMappings().UpdateBusinessMapping(&payload)
+	err = client.BusinessMappings().UpdateBusinessDimension(&payload)
 	if err != nil {
 		return err
 	}
 	ctx := context.TODO()
-	tflog.Info(ctx, fmt.Sprintf("Updating business mapping with index: %d", id))
+	tflog.Info(ctx, fmt.Sprintf("Updating business dimension with index: %d", id))
 	return resourceBusinessMappingRead(d, meta)
 }
 
@@ -149,14 +149,14 @@ func resourceBusinessMappingDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	ctx := context.TODO()
 	tflog.Info(ctx, fmt.Sprintf("Deleting business mapping with index: %d", id))
-	err = client.BusinessMappings().DeleteBusinessMapping(id)
+	err = client.BusinessMappings().DeleteBusinessDimension(id)
 	if err != nil {
 		// Ignore 404 errors (No resource found)
 		var apiError cloudability.APIError
 		jsonErr := json.Unmarshal([]byte(err.Error()), &apiError)
 		if jsonErr == nil && apiError.Error.Status == 404 {
 			ctx := context.TODO()
-			tflog.Info(ctx, "resourceBusinessMappingDelete Resource not found. Ignoring")
+			tflog.Info(ctx, "resourceBusinessDimensionDelete Resource not found. Ignoring")
 			return nil
 		}
 	}
