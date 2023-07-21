@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -92,12 +93,20 @@ func resourceViewCreate(d *schema.ResourceData, meta interface{}) error {
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),
 		Filters:                inflateFilters(d.Get("filter").([]interface{})),
 	}
+	var mu sync.Mutex
+	mu.Lock()
+	defer mu.Unlock()
 	view, err := client.Views().NewView(view)
 	if err != nil {
 		return err
 	}
 	d.SetId(view.ID)
-	return resourceViewRead(d, meta)
+	d.Set("title", view.Title)
+	d.Set("shared_with_users", view.SharedWithUsers)
+	d.Set("shared_with_organization", view.SharedWithOrganization)
+	d.Set("owner_id", view.OwnerID)
+	d.Set("filter", flattenFilters(view.Filters))
+	return nil
 }
 
 func resourceViewRead(d *schema.ResourceData, meta interface{}) error {
@@ -127,13 +136,14 @@ func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 		SharedWithOrganization: d.Get("shared_with_organization").(bool),
 		Filters:                inflateFilters(d.Get("filter").([]interface{})),
 	}
+	var mu sync.Mutex
+	mu.Lock()
+	defer mu.Unlock()
 	err := client.Views().UpdateView(view)
 	if err != nil {
 		return err
 	}
 
-	// Need to configure via Timeout.
-	// HACK: Could not implement timeouts due to error
 	ctx := context.TODO()
 	updateTimeout := 1 * time.Minute
 	err = tfretry.RetryContext(ctx, updateTimeout, func() *tfretry.RetryError {
@@ -152,8 +162,12 @@ func resourceViewUpdate(d *schema.ResourceData, meta interface{}) error {
 		log.Printf("[DEBUG] Could not update the view: %q", err)
 		return err
 	}
-
-	return resourceViewRead(d, meta)
+	d.Set("title", view.Title)
+	d.Set("shared_with_users", view.SharedWithUsers)
+	d.Set("shared_with_organization", view.SharedWithOrganization)
+	d.Set("owner_id", view.OwnerID)
+	d.Set("filter", flattenFilters(view.Filters))
+	return nil
 }
 
 func resourceViewDelete(d *schema.ResourceData, meta interface{}) error {
@@ -162,7 +176,7 @@ func resourceViewDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func viewEqual(view *cloudability.View, d *schema.ResourceData) bool {
-	return view.Title != d.Get("title").(string) ||
+	return view.Title == d.Get("title").(string) ||
 		view.SharedWithOrganization != d.Get("shared_with_organization").(bool) ||
 		!reflect.DeepEqual(view.SharedWithUsers, inflateStrings(d.Get("shared_with_users").([]interface{}))) ||
 		!reflect.DeepEqual(view.Filters, inflateFilters(d.Get("filter").([]interface{})))
