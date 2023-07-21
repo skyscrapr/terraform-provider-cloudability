@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -80,6 +81,10 @@ func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) err
 		DefaultValue: d.Get("default_value").(string),
 		Statements:   inflateStatements(d.Get("statement").([]interface{})),
 	}
+
+	var mu sync.Mutex
+	mu.Lock()
+	defer mu.Unlock()
 	businessMapping, err := client.BusinessMappings().NewBusinessDimension(&payload)
 	if err != nil {
 		return err
@@ -87,7 +92,7 @@ func resourceBusinessMappingCreate(d *schema.ResourceData, meta interface{}) err
 	ctx := context.TODO()
 	tflog.Info(ctx, fmt.Sprintf("New business dimension created with index: %d", businessMapping.Index))
 	d.SetId(strconv.Itoa(businessMapping.Index))
-	time.Sleep(2 * time.Second)
+
 	return resourceBusinessMappingRead(d, meta)
 }
 

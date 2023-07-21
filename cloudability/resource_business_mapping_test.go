@@ -119,7 +119,7 @@ resource "cloudability_business_mapping" "test2" {
 		match_expression = "DIMENSION['vendor'] == 'vendor2_2'"
 		value_expression = "'Vendor2_2'"
 	}
-	depends_on = [cloudability_business_mapping.test1]
+	// depends_on = [cloudability_business_mapping.test1]
 }
 
 resource "cloudability_business_mapping" "test3" {
@@ -134,7 +134,7 @@ resource "cloudability_business_mapping" "test3" {
 		match_expression = "DIMENSION['vendor'] == 'vendor3_2'"
 		value_expression = "'Vendor3_2'"
 	}
-	depends_on = [cloudability_business_mapping.test2]
+	// depends_on = [cloudability_business_mapping.test2]
 }
 `
 }
