@@ -18,8 +18,9 @@ func TestAccBusinessMetricResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("cloudability_business_metric.test", "id"),
 					resource.TestCheckResourceAttr("cloudability_business_metric.test", "name", "Cost (Surcharge) A"),
-					// resource.TestCheckResourceAttr("cloudability_business_metric.test", "default_value", "METRIC['unblended_cost']"),
-					// resource.TestCheckResourceAttr("cloudability_business_metric.test", "default_value_expression", "METRIC['unblended_cost']"),
+					resource.TestCheckResourceAttr("cloudability_business_metric.test", "default_value", "METRIC['unblended_cost']"),
+					resource.TestCheckResourceAttr("cloudability_business_metric.test", "default_value_expression", "METRIC['unblended_cost']"),
+					resource.TestCheckResourceAttr("cloudability_business_metric.test", "pre_match_expression", "DIMENSION['vendor'] == 'Amazon'"),
 				),
 			},
 			// ImportState testing
@@ -31,7 +32,7 @@ func TestAccBusinessMetricResource(t *testing.T) {
 				// example code does not have an actual upstream service.
 				// Once the Read method is able to refresh information from
 				// the upstream service, this can be removed.
-				ImportStateVerifyIgnore: []string{"default_value_expression", "default_value"},
+				ImportStateVerifyIgnore: []string{"default_value_expression"},
 			},
 			// Update and Read testing
 			{
@@ -51,17 +52,18 @@ resource "cloudability_business_metric" "test" {
 	name = "Cost (Surcharge) %s"
 	number_format = "number"
 	default_value_expression = "METRIC['unblended_cost']"
+	pre_match_expression = "DIMENSION['vendor'] == 'Amazon'"
 	statement {
 		match_expression = "DIMENSION['vendor'] == 'Amazon' || DIMENSION['vendor'] == 'Azure'"
 		value_expression = "METRIC['unblended_cost'] * 1.15"
 	}
 
-	lifecycle {
-		ignore_changes = [
-			default_value_expression,
-		  	default_value
-		]
-	}
+	// lifecycle {
+	// 	ignore_changes = [
+	// 		default_value_expression,
+	// 	  	default_value
+	// 	]
+	// }
   
 	// name = "Cost (Storage Backup)"
 	// // "kind": "BUSINESS_METRIC"

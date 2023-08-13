@@ -15,7 +15,7 @@ func resourceBusinessMetric() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBusinessMetricCreate,
 		Read:   resourceBusinessMetricRead,
-		// Update: resourceBusinessMetricUpdate,
+		Update: resourceBusinessMetricUpdate,
 		Delete: resourceBusinessMetricDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -28,7 +28,6 @@ func resourceBusinessMetric() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"number_format": {
 				Type:     schema.TypeString,
@@ -43,31 +42,23 @@ func resourceBusinessMetric() *schema.Resource {
 					errs = append(errs, fmt.Errorf("invalid value for number_format. Must ne 'currency' or 'number'"))
 					return
 				},
-				Default:  "number",
-				ForceNew: true,
+				Default: "number",
 			},
 			"default_value": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"default_value_expression"},
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"default_value_expression": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"default_value"},
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"pre_match_expression": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "",
-				ForceNew: true,
 			},
 			"statement": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"match_expression": {
@@ -128,7 +119,6 @@ func resourceBusinessMetricRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("name", businessMapping.Name)
 		d.Set("number_format", businessMapping.NumberFormat)
 		d.Set("default_value", businessMapping.DefaultValue)
-		// d.Set("default_value_expression", businessMapping.DefaultValueExpression)
 		d.Set("pre_match_expression", businessMapping.PreMatchExpression)
 		d.Set("statement", flattenStatements(businessMapping.Statements))
 		d.Set("updated_at", businessMapping.UpdatedAt)
@@ -137,30 +127,29 @@ func resourceBusinessMetricRead(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-// func resourceBusinessMetricUpdate(d *schema.ResourceData, meta interface{}) error {
-// 	client := meta.(*cloudability.Client)
-// 	id, err := strconv.Atoi(d.Id())
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	payload := cloudability.BusinessMapping{
-// 		Kind:                   "BUSINESS_METRIC",
-// 		Index:                  d.Get("index").(int),
-// 		Name:                   d.Get("name").(string),
-// 		NumberFormat:           d.Get("number_format").(string),
-// 		PreMatchExpression:     d.Get("pre_match_expression").(string),
-// 		DefaultValueExpression: d.Get("default_value_expression").(string),
-// 		DefaultValue:           d.Get("default_value").(string),
-// 		Statements:             inflateStatements(d.Get("statement").([]interface{})),
-// 	}
-// 	err = client.BusinessMappings().UpdateBusinessMetric(&payload)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	ctx := context.TODO()
-// 	tflog.Info(ctx, fmt.Sprintf("Updating business metric with index: %d", id))
-// 	return resourceBusinessMetricRead(d, meta)
-// }
+func resourceBusinessMetricUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*cloudability.Client)
+	id, err := strconv.Atoi(d.Id())
+	if err != nil {
+		return nil
+	}
+	payload := cloudability.BusinessMapping{
+		Kind:                   "BUSINESS_METRIC",
+		Index:                  d.Get("index").(int),
+		Name:                   d.Get("name").(string),
+		NumberFormat:           d.Get("number_format").(string),
+		PreMatchExpression:     d.Get("pre_match_expression").(string),
+		DefaultValueExpression: d.Get("default_value_expression").(string),
+		Statements:             inflateStatements(d.Get("statement").([]interface{})),
+	}
+	err = client.BusinessMappings().UpdateBusinessMetric(&payload)
+	if err != nil {
+		return err
+	}
+	ctx := context.TODO()
+	tflog.Info(ctx, fmt.Sprintf("Updating business metric with index: %d", id))
+	return resourceBusinessMetricRead(d, meta)
+}
 
 func resourceBusinessMetricDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
