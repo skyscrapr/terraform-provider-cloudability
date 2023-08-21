@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -46,16 +45,13 @@ func resourceClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	client.SetTimeout(d.Timeout("Create"))
 
-	container := &cloudability.Cluster{
+	newCluster := &cloudability.Cluster{
 		ClusterName:       d.Get("cluster_name").(string),
 		KubernetesVersion: d.Get("kubernetes_version").(string),
 		ClusterVersion:    d.Get("cluster_version").(string),
 	}
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
 
-	cluster, err := client.Containers().NewContainers(container)
+	cluster, err := client.Containers().NewContainers(newCluster)
 	ctx := context.TODO()
 	tflog.Info(ctx, fmt.Sprintf("New cluster provisioned with ID: %d", cluster.ID))
 
@@ -78,12 +74,16 @@ func resourceClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	if cluster != nil {
-		d.Set("cluster_name", cluster.ClusterName)
-		d.Set("cluster_version", cluster.ClusterVersion)
-		d.Set("kubernetes_version", cluster.KubernetesVersion)
-		d.SetId(strconv.Itoa(cluster.ID))
+	if cluster == nil {
+		tflog.Warn(context.Background(), "Cluster not found", map[string]interface{}{"id": d.Id()})
+		d.SetId("")
+		return nil
 	}
+
+	d.Set("cluster_name", cluster.ClusterName)
+	d.Set("cluster_version", cluster.ClusterVersion)
+	d.Set("kubernetes_version", cluster.KubernetesVersion)
+
 	return nil
 }
 
@@ -98,19 +98,18 @@ func resourceClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 		KubernetesVersion: d.Get("kubernetes_version").(string),
 		ClusterVersion:    d.Get("cluster_version").(string),
 	}
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
+
 	err := client.Containers().UpdateContainers(cluster)
 	if err != nil {
 		return err
 	}
-	return nil
+
+	return resourceClusterRead(d, meta)
 }
 
 func resourceClusterDelete(d *schema.ResourceData, meta interface{}) error {
-	ctx := context.TODO()
-	tflog.Warn(ctx, "Deletion is not supported for Cluster resources")
+	tflog.Warn(context.Background(), "Deletion is not supported for Cluster resources", map[string]interface{}{"id": d.Id()})
 	d.SetId("")
+
 	return nil
 }

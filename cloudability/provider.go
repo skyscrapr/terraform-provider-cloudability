@@ -27,6 +27,7 @@ func Provider() *schema.Provider {
 			"cloudability_business_mapping": resourceBusinessMapping(),
 			"cloudability_business_metric":  resourceBusinessMetric(),
 			"cloudability_view":             resourceView(),
+			"cloudability_cluster":          resourceCluster(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
