@@ -51,7 +51,7 @@ func resourceClusterCreate(d *schema.ResourceData, meta interface{}) error {
 		ClusterVersion:    d.Get("cluster_version").(string),
 	}
 
-	cluster, err := client.Containers().NewContainers(newCluster)
+	cluster, err := client.Containers().NewCluster(newCluster)
 	ctx := context.TODO()
 	tflog.Info(ctx, fmt.Sprintf("New cluster provisioned with ID: %d", cluster.ID))
 
@@ -70,7 +70,7 @@ func resourceClusterRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*cloudability.Client)
 	client.SetTimeout(d.Timeout("Read"))
 
-	cluster, err := client.Containers().GetContainer(d.Id())
+	cluster, err := client.Containers().GetCluster(d.Id())
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func resourceClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 		ClusterVersion:    d.Get("cluster_version").(string),
 	}
 
-	err := client.Containers().UpdateContainers(cluster)
+	err := client.Containers().UpdateCluster(cluster)
 	if err != nil {
 		return err
 	}
