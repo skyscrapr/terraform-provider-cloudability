@@ -20,6 +20,7 @@ func Provider() *schema.Provider {
 			"cloudability_users":                dataSourceUsers(),
 			"cloudability_views":                dataSourceViews(),
 			"cloudability_view":                 dataSourceView(),
+			"cloudability_cluster_config":       dataSourceClusterConfig(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"cloudability_master_account":   resourceMasterAccount(),
