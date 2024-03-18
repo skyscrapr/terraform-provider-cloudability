@@ -6,8 +6,6 @@ import (
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 	"log"
 	"time"
-	"strings"
-	"fmt"
 	"context"
 )
 
