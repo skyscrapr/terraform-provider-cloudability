@@ -6,6 +6,7 @@ import (
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 	"log"
 	"time"
+	"context"
 )
 
 func resourceLinkedAccount() *schema.Resource {
@@ -14,7 +15,7 @@ func resourceLinkedAccount() *schema.Resource {
 		Read:   resourceLinkedAccountRead,
 		Delete: resourceLinkedAccountDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceLinkedAccountImport,
 		},
 		Schema: map[string]*schema.Schema{
 			"vendor_account_name": {
@@ -151,6 +152,7 @@ func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
+	log.Printf("[DEBUG] resourceLinkedAccountRead Account: %v", account)
 
 	if account != nil {
 		d.Set("vendor_account_name", account.VendorAccountName)
@@ -158,7 +160,12 @@ func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("vendor_key", account.VendorKey)
 		d.Set("verification", flattenVerification(account.Verification))
 		d.Set("authorization", flattenAuthorization(account.Authorization))
-		d.Set("external_id", account.Authorization.ExternalID)
+		// when account is fresh in cloudability, it may not have external ID assigned yet
+    if account.Authorization != nil {
+			d.Set("external_id", account.Authorization.ExternalID)
+		} else {
+			log.Print("[DEBUG] resourceLinkedAccountRead Account has no authorization yet")
+		}
 		d.Set("parent_account_id", account.ParentAccountID)
 		d.Set("created_at", account.CreatedAt)
 		d.SetId(account.ID)
@@ -173,4 +180,19 @@ func resourceLinkedAccountDelete(d *schema.ResourceData, meta interface{}) error
 	accountID := d.Get("vendor_account_id").(string)
 	err := client.Vendors().DeleteAccount(vendorKey, accountID)
 	return err
+}
+
+func resourceLinkedAccountImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	// Set the vendor key and account ID in the resource data
+	d.Set("vendor_key", "aws")
+	d.Set("vendor_account_id", d.Id())
+	d.Set("type", "aws_role")
+
+	// Call the read function to get the rest of the resource data
+	err := resourceLinkedAccountRead(d, meta)
+	if err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
 }
