@@ -1,12 +1,12 @@
 package cloudability
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/skyscrapr/cloudability-sdk-go/cloudability"
 	"log"
 	"time"
-	"context"
 )
 
 func resourceLinkedAccount() *schema.Resource {
@@ -161,7 +161,7 @@ func resourceLinkedAccountRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("verification", flattenVerification(account.Verification))
 		d.Set("authorization", flattenAuthorization(account.Authorization))
 		// when account is fresh in cloudability, it may not have external ID assigned yet
-    if account.Authorization != nil {
+		if account.Authorization != nil {
 			d.Set("external_id", account.Authorization.ExternalID)
 		} else {
 			log.Print("[DEBUG] resourceLinkedAccountRead Account has no authorization yet")
