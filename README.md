@@ -1,13 +1,15 @@
 # Skyscrapr Terraform Provider for Cloudability
 
-[![Build Status](https://travis-ci.com/skyscrapr/terraform-provider-cloudability.svg?branch=master)](https://travis-ci.com/skyscrapr/terraform-provider-cloudability)
+[![Go Reference](https://pkg.go.dev/badge/github.com/skyscrapr/terraform-provider-cloudability.svg)](https://pkg.go.dev/github.com/skyscrapr/terraform-provider-cloudability)
 [![Go Report Card](https://goreportcard.com/badge/github.com/skyscrapr/terraform-provider-cloudability)](https://goreportcard.com/report/github.com/skyscrapr/terraform-provider-cloudability)
+![Github Actions Workflow](https://github.com/skyscrapr/terraform-provider-cloudability/actions/workflows/release.yml/badge.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/skyscrapr/terraform-provider-cloudability)
 ![License](https://img.shields.io/dub/l/vibe-d.svg)
 
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) 0.12+
-- [Go](https://golang.org/doc/install) 1.13 (to build the provider plugin)
+- [Go](https://golang.org/doc/install) 1.22.7 (to build the provider plugin)
 - [cloudability-sdk-go](https://github.com/skyscrapr/cloudability-sdk-go) 
 
 ## Installing the Provider
